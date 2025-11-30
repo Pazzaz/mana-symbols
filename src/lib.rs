@@ -10,6 +10,7 @@ use std::{fmt::Display, str::FromStr};
 pub use color::Color;
 pub(crate) use generic_mana::GenericMana;
 pub use mana::Mana;
+use nom::{IResult, Parser, multi::many0};
 pub(crate) use single_mana::SingleMana;
 pub(crate) use split_mana::SplitMana;
 
@@ -136,6 +137,11 @@ impl Manas {
             debug_assert_eq!(*mana, Mana::Snow);
         }
     }
+
+    pub fn parse(input: &str) -> IResult<&str, Self> {
+        let (rest, res) = many0(Mana::parse_possible_brackets).parse(input)?;
+        Ok((rest, Self { manas: res }))
+    }
 }
 
 fn sort_by_colors<T, F: Fn(&T) -> Color>(a: &mut [T], pred: F) {
@@ -239,5 +245,27 @@ mod tests {
 
         manas_before.sort();
         assert_eq!(manas_before.to_string(), after);
+    }
+
+    #[test]
+    fn nom_parse_long_1() {
+        let unsorted_long = "{R/P}{X}{C/U}{2/B}{W}{W/U}{B}{B/R/P}{2/R}{G}{C}{G/W/P}{S}{4}{Y}{R/W}";
+        if let Ok((res, manas)) = Manas::parse(unsorted_long) {
+            assert_eq!(res, "");
+            let simple_parser = Manas::from_str(unsorted_long).unwrap();
+            assert_eq!(manas, simple_parser);
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn nom_parse_long_2() {
+        let unsorted_long = "R/PXC/U2/BWW/UBB/R/P2/RGCG/W/PS4YR/W";
+        if let Ok((res, _manas)) = Manas::parse(unsorted_long) {
+            assert_eq!(res, "");
+        } else {
+            panic!();
+        }
     }
 }

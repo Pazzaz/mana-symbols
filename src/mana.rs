@@ -3,6 +3,10 @@ use std::{
     str::FromStr,
 };
 
+use nom::{
+    IResult, Parser, branch::alt, character::complete::char, combinator::value, sequence::delimited,
+};
+
 use crate::{Color, GenericMana, SingleMana, SplitMana};
 
 /// A mana symbol.
@@ -116,5 +120,21 @@ impl Mana {
             Mana::Colorless => None,
             Mana::Snow => None,
         }
+    }
+
+    pub fn parse(input: &str) -> IResult<&str, Self> {
+        let single = SingleMana::parse.map(Self::Single);
+        let generic = GenericMana::parse.map(Self::Generic);
+        let split = SplitMana::parse.map(Self::Split);
+        let colorless = value(Self::Colorless, char('C'));
+        let snow = value(Self::Snow, char('S'));
+
+        // We put the "longer" types first, to avoid matching prefixes
+        alt((split, generic, single, colorless, snow)).parse(input)
+    }
+
+    pub fn parse_possible_brackets(input: &str) -> IResult<&str, Self> {
+        let brackets = delimited(char('{'), Self::parse, char('}'));
+        alt((brackets, Self::parse)).parse(input)
     }
 }

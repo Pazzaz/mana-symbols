@@ -1,5 +1,13 @@
 use std::{fmt::Display, str::FromStr};
 
+use nom::{
+    IResult, Parser,
+    branch::alt,
+    bytes::complete::{tag, take_while},
+    character::complete::char,
+    sequence::{preceded, separated_pair, terminated},
+};
+
 use crate::{Color, color_set::ColorSet};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -90,5 +98,20 @@ impl SplitMana {
             SplitMana::Colorless { color } => Some(*color),
             SplitMana::Duo { b, .. } => Some(*b),
         }
+    }
+
+    pub fn parse(input: &str) -> IResult<&str, SplitMana> {
+        let colorless =
+            preceded(tag("C/"), Color::parse).map(|color| SplitMana::Colorless { color });
+        let phyrexian =
+            terminated(separated_pair(Color::parse, char('/'), Color::parse), tag("/P"))
+                .map(|(a, b)| SplitMana::Duo { a, b, phyrexian: true });
+        let normal = separated_pair(Color::parse, char('/'), Color::parse)
+            .map(|(a, b)| SplitMana::Duo { a, b, phyrexian: false });
+
+        let number = take_while(char::is_numeric).map_res(|s: &str| s.parse::<usize>());
+        let generic = separated_pair(number, char('/'), Color::parse)
+            .map(|(n, color)| SplitMana::Mono { value: n, color });
+        alt((colorless, phyrexian, normal, generic)).parse(input)
     }
 }

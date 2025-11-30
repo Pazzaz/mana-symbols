@@ -3,6 +3,11 @@ use std::{
     str::FromStr,
 };
 
+use nom::{
+    IResult, Parser, branch::alt, bytes::complete::take_while, character::complete::char,
+    combinator::value,
+};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMana {
     Number(usize),
@@ -39,5 +44,16 @@ impl FromStr for GenericMana {
             }
         };
         Ok(mana)
+    }
+}
+
+impl GenericMana {
+    pub fn parse(input: &str) -> IResult<&str, GenericMana> {
+        let x = value(GenericMana::X, char('X'));
+        let y = value(GenericMana::Y, char('Y'));
+        let z = value(GenericMana::Z, char('Z'));
+        let number = take_while(|c: char| c.is_numeric())
+            .map_res(|s: &str| s.parse().map(GenericMana::Number));
+        alt((x, y, z, number)).parse(input)
     }
 }

@@ -1,5 +1,7 @@
 use std::{fmt::Display, str::FromStr};
 
+use nom::{IResult, Parser, branch::alt, bytes::complete::tag, sequence::terminated};
+
 use crate::Color;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -39,5 +41,11 @@ impl SingleMana {
         match self {
             SingleMana::Normal(color) | SingleMana::Phyrexian(color) => *color,
         }
+    }
+
+    pub fn parse(input: &str) -> IResult<&str, SingleMana> {
+        let phyrexian = terminated(Color::parse, tag("/P")).map(SingleMana::Phyrexian);
+        let normal = Color::parse.map(SingleMana::Normal);
+        alt((phyrexian, normal)).parse(input)
     }
 }

@@ -3,6 +3,8 @@ use std::{
     str::FromStr,
 };
 
+use nom::{IResult, Parser, branch::alt, character::complete::char, combinator::value};
+
 /// One of the five [colors](https://mtg.wiki/page/Color) of the color pie.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Color {
@@ -63,5 +65,14 @@ impl Color {
 
     pub(crate) const fn next(&self, i: usize) -> Color {
         Self::from_usize((*self as usize).wrapping_add(i))
+    }
+
+    pub fn parse(input: &str) -> IResult<&str, Color> {
+        let w = value(Color::White, char('W'));
+        let u = value(Color::Blue, char('U'));
+        let b = value(Color::Black, char('B'));
+        let r = value(Color::Red, char('R'));
+        let g = value(Color::Green, char('G'));
+        alt((w, u, b, r, g)).parse(input)
     }
 }
