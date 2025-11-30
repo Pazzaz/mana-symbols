@@ -6,87 +6,47 @@ pub(crate) struct ColorSet {
 
 const VALUES: usize = 0b11111 + 1;
 
+const fn add_order(a: &mut [[u8; 5]; VALUES], color: Color, offsets: &[usize]) {
+    let mut set = ColorSet::new();
+    let mut i: usize = 0;
+    while i < offsets.len() {
+        let c = color.next(offsets[i]);
+        set.set_color(c);
+        i += 1;
+    }
+    let mut i: usize = 1;
+    while i < offsets.len() {
+        let c = color.next(offsets[i]);
+        a[set.bitset as usize][c as usize] = i as u8;
+        i += 1;
+    }
+}
+
 // We precompute the order of each color combination
 const ORDER_ARRAY: [[u8; 5]; VALUES] = {
     let mut array = [[0; 5]; VALUES];
-
-    // when we have zero and one active bits we just return zeros
-    // so we start at two values
     let mut color_i = 0;
     while color_i != 5 {
         let color = ALL_COLORS[color_i];
-        let next1 = color.next_color();
-        let next2 = next1.next_color();
 
-        // Adjacent color
-        {
-            let mut i = ColorSet::new();
-            i.set_color(color);
-            i.set_color(next1);
-            array[i.bitset as usize][next1 as usize] = 1;
-        }
+        // when we have zero and one active bits we just return zeros
+        // so we start at two values
+
+        // Adjacent colors
+        add_order(&mut array, color, &[0, 1]);
 
         // Two steps away
-        {
-            let mut i = ColorSet::new();
-            i.set_color(color);
-            i.set_color(next2);
-            array[i.bitset as usize][next2 as usize] = 1;
-        }
-
-        color_i += 1;
-    }
-
-    // Three colors
-    let mut color_i = 0;
-    while color_i != 5 {
-        let color = ALL_COLORS[color_i];
-        let next1 = color.next_color();
-        let next2 = next1.next_color();
-        let next3 = next2.next_color();
+        add_order(&mut array, color, &[0, 2]);
 
         // Three adjacent colors
-        {
-            let mut i = ColorSet::new();
-            i.set_color(color);
-            i.set_color(next1);
-            i.set_color(next2);
-            array[i.bitset as usize][next1 as usize] = 1;
-            array[i.bitset as usize][next2 as usize] = 2;
-        }
+        add_order(&mut array, color, &[0, 1, 2]);
 
-        // Two adjacent and one opposite
-        {
-            let mut i = ColorSet::new();
-            i.set_color(color);
-            i.set_color(next1);
-            i.set_color(next3);
-            array[i.bitset as usize][next3 as usize] = 1;
-            array[i.bitset as usize][color as usize] = 2;
-        }
+        // Two adjacent and one opposite. We do not minimize total distance between
+        // adjacent mana values here.
+        add_order(&mut array, color, &[1, 3, 0]);
 
-        color_i += 1;
-    }
-
-    // Four colors
-    let mut color_i = 0;
-    while color_i != 5 {
-        let color = ALL_COLORS[color_i];
-        let next1 = color.next_color();
-        let next2 = next1.next_color();
-        let next3 = next2.next_color();
-
-        {
-            let mut i = ColorSet::new();
-            i.set_color(color);
-            i.set_color(next1);
-            i.set_color(next2);
-            i.set_color(next3);
-            array[i.bitset as usize][next1 as usize] = 1;
-            array[i.bitset as usize][next2 as usize] = 2;
-            array[i.bitset as usize][next3 as usize] = 3;
-        }
-
+        // Four colors
+        add_order(&mut array, color, &[0, 1, 2, 3]);
         color_i += 1;
     }
 
@@ -111,5 +71,20 @@ impl ColorSet {
 
     pub const fn order_values(&self) -> &[u8] {
         &ORDER_ARRAY[self.bitset as usize]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn urw() {
+        let mut set = ColorSet::new();
+        set.set_color(Color::Blue);
+        set.set_color(Color::Red);
+        set.set_color(Color::White);
+
+        assert_eq!(ORDER_ARRAY[set.bitset as usize], [2, 0, 0, 1, 0]);
     }
 }

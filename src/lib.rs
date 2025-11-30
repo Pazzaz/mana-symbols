@@ -5,7 +5,10 @@ mod color_set;
 
 pub use color::Color;
 
-use std::{fmt::{Display, Write}, str::FromStr};
+use std::{
+    fmt::{Display, Write},
+    str::FromStr,
+};
 
 use crate::color_set::ColorSet;
 
@@ -382,7 +385,7 @@ impl Manas {
             });
 
             sort_by_colors(hybrid_non_phyrexian, |x| x.right_half_color().unwrap());
-            sort_by_colors(hybrid_phyrexian,     |x| x.right_half_color().unwrap());
+            sort_by_colors(hybrid_phyrexian, |x| x.right_half_color().unwrap());
         }
 
         for mana in snow {

@@ -1,4 +1,7 @@
-use std::{fmt::{Display, Write}, str::FromStr};
+use std::{
+    fmt::{Display, Write},
+    str::FromStr,
+};
 
 /// The five [colors](https://mtg.wiki/page/Color) of the color pie.
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord)]
@@ -52,13 +55,18 @@ impl FromStr for Color {
 }
 
 impl Color {
-    pub(crate) const fn next_color(&self) -> Color {
-        match self {
-            Self::White => Self::Blue,
-            Self::Blue => Self::Black,
-            Self::Black => Self::Red,
-            Self::Red => Self::Green,
-            Self::Green => Self::White,
+    const fn from_usize(n: usize) -> Color {
+        match n % 5 {
+            0 => Self::White,
+            1 => Self::Blue,
+            2 => Self::Black,
+            3 => Self::Red,
+            4 => Self::Green,
+            _ => unreachable!(),
         }
+    }
+
+    pub(crate) const fn next(&self, i: usize) -> Color {
+        Self::from_usize((*self as usize).wrapping_add(i))
     }
 }
