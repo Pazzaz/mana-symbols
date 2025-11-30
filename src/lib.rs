@@ -1,6 +1,6 @@
 // Based on: https://www.reddit.com/r/custommagic/comments/1nhtr3w/guide_for_formatting_mana_costs/
 
-use std::fmt::{Display, Write};
+use std::{fmt::{Display, Write}, str::FromStr};
 
 /// The five main colors:
 /// - White (W)
@@ -29,26 +29,30 @@ impl Display for Color {
     }
 }
 
-impl Color {
-    fn from_inner(s: &str) -> Option<Self> {
-        let color = match s {
-            "W" => Color::White,
-            "U" => Color::Blue,
-            "B" => Color::Black,
-            "R" => Color::Red,
-            "G" => Color::Green,
-            _ => return None,
-        };
-        Some(color)
-    }
+impl FromStr for Color {
+    type Err = ();
 
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let color = match s {
+            "W" => Self::White,
+            "U" => Self::Blue,
+            "B" => Self::Black,
+            "R" => Self::Red,
+            "G" => Self::Green,
+            _ => return Err(()),
+        };
+        Ok(color)
+    }
+}
+
+impl Color {
     const fn next_color(&self) -> Color {
         match self {
-            Color::White => Color::Blue,
-            Color::Blue => Color::Black,
-            Color::Black => Color::Red,
-            Color::Red => Color::Green,
-            Color::Green => Color::White,
+            Self::White => Self::Blue,
+            Self::Blue => Self::Black,
+            Self::Black => Self::Red,
+            Self::Red => Self::Green,
+            Self::Green => Self::White,
         }
     }
 }
@@ -72,21 +76,23 @@ impl Display for GenericMana {
     }
 }
 
-impl GenericMana {
-    fn from_inner(s: &str) -> Option<Self> {
+impl FromStr for GenericMana {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mana = match s {
-            "X" => GenericMana::X,
-            "Y" => GenericMana::Y,
-            "Z" => GenericMana::Z,
+            "X" => Self::X,
+            "Y" => Self::Y,
+            "Z" => Self::Z,
             s => {
                 if let Ok(n) = s.parse::<usize>() {
-                    GenericMana::Number(n)
+                    Self::Number(n)
                 } else {
-                    return None;
+                    return Err(());
                 }
             }
         };
-        Some(mana)
+        Ok(mana)
     }
 }
 
@@ -113,8 +119,10 @@ impl Display for SplitMana {
     }
 }
 
-impl SplitMana {
-    fn from_inner(s: &str) -> Option<Self> {
+impl FromStr for SplitMana {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         if let Some((first, mut second)) = s.split_once('/') {
             let phyrexian: bool;
             (second, phyrexian) = {
@@ -125,22 +133,22 @@ impl SplitMana {
                 }
             };
 
-            let b = Color::from_inner(second)?;
+            let b = Color::from_str(second)?;
             if phyrexian {
-                let a = Color::from_inner(first)?;
-                Some(SplitMana::Duo {
+                let a = Color::from_str(first)?;
+                Ok(SplitMana::Duo {
                     a,
                     b,
                     phyrexian: true,
                 })
             } else {
                 if first == "C" {
-                    Some(SplitMana::Colorless { color: b })
+                    Ok(SplitMana::Colorless { color: b })
                 } else if let Ok(value) = first.parse::<usize>() {
-                    Some(SplitMana::Mono { value, color: b })
+                    Ok(SplitMana::Mono { value, color: b })
                 } else {
-                    let a = Color::from_inner(first)?;
-                    Some(SplitMana::Duo {
+                    let a = Color::from_str(first)?;
+                    Ok(SplitMana::Duo {
                         a,
                         b,
                         phyrexian: false,
@@ -148,10 +156,12 @@ impl SplitMana {
                 }
             }
         } else {
-            None
+            Err(())
         }
     }
+}
 
+impl SplitMana {
     pub fn normalize(&mut self) {
         match self {
             // We sort hybrid mana with two colors
@@ -204,20 +214,24 @@ impl Display for SingleMana {
     }
 }
 
-impl SingleMana {
-    pub fn from_inner(s: &str) -> Option<Self> {
-        if let Some(color) = Color::from_inner(s) {
-            Some(Self::Normal(color))
+impl FromStr for SingleMana {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if let Some(color) = Color::from_str(s).ok() {
+            Ok(Self::Normal(color))
         } else if let Some((first, second)) = s.split_once('/')
             && second == "P"
         {
-            let color = Color::from_inner(first)?;
-            Some(Self::Phyrexian(color))
+            let color = Color::from_str(first)?;
+            Ok(Self::Phyrexian(color))
         } else {
-            None
+            Err(())
         }
     }
+}
 
+impl SingleMana {
     fn color(&self) -> Color {
         match self {
             SingleMana::Normal(color) | SingleMana::Phyrexian(color) => *color,
@@ -246,6 +260,26 @@ impl Display for Mana {
     }
 }
 
+impl FromStr for Mana {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if let Ok(single) = SingleMana::from_str(s) {
+            Ok(Mana::Single(single))
+        } else if let Ok(generic_mana) = GenericMana::from_str(s) {
+            Ok(Mana::Generic(generic_mana))
+        } else if let Ok(split) = SplitMana::from_str(s) {
+            Ok(Mana::Split(split))
+        } else if s == "C" {
+            Ok(Mana::Colorless)
+        } else if s == "S" {
+            Ok(Mana::Snow)
+        } else {
+            Err(())
+        }
+    }
+}
+
 impl Mana {
     pub fn mana_value(&self) -> usize {
         match self {
@@ -257,22 +291,6 @@ impl Mana {
             Mana::Split(SplitMana::Duo { .. }) => 1,
             Mana::Split(SplitMana::Colorless { .. }) => 1,
             Mana::Single { .. } | Mana::Colorless | Mana::Snow => 1,
-        }
-    }
-
-    pub fn from_inner(s: &str) -> Result<Self, ()> {
-        if let Some(single) = SingleMana::from_inner(s) {
-            Ok(Mana::Single(single))
-        } else if let Some(generic_mana) = GenericMana::from_inner(s) {
-            Ok(Mana::Generic(generic_mana))
-        } else if let Some(split) = SplitMana::from_inner(s) {
-            Ok(Mana::Split(split))
-        } else if s == "C" {
-            Ok(Mana::Colorless)
-        } else if s == "S" {
-            Ok(Mana::Snow)
-        } else {
-            Err(())
         }
     }
 
@@ -311,21 +329,25 @@ impl Display for Manas {
     }
 }
 
+impl FromStr for Manas {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let manas: Result<Result<Vec<Mana>, ()>, ()> = GroupIterator::new(s)
+            .map(|x| x.map(Mana::from_str))
+            .collect();
+        manas.flatten().map(|manas| Manas { manas })
+    }
+}
+
 impl Manas {
     pub fn mana_value(&self) -> usize {
         self.manas.iter().map(Mana::mana_value).sum()
     }
 
-    pub fn from_str(s: &str) -> Result<Self, ()> {
-        let manas: Result<Result<Vec<Mana>, ()>, ()> = GroupIterator::new(s)
-            .map(|x| x.map(Mana::from_inner))
-            .collect();
-        manas.flatten().map(|manas| Manas { manas })
-    }
-
     /// Normalizes hybrid mana symbols and sorts the mana symbols
     pub fn normalize(&mut self) {
-        // Normalize hybird mana
+        // Normalize hybrid mana
         for mana in &mut self.manas {
             match mana {
                 Mana::Split(split_mana) => split_mana.normalize(),
