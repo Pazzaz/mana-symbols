@@ -8,10 +8,10 @@ mod split_mana;
 use std::{fmt::Display, str::FromStr};
 
 pub use color::Color;
-pub use generic_mana::GenericMana;
+pub(crate) use generic_mana::GenericMana;
 pub use mana::Mana;
-pub use single_mana::SingleMana;
-pub use split_mana::SplitMana;
+pub(crate) use single_mana::SingleMana;
+pub(crate) use split_mana::SplitMana;
 
 use crate::color_set::ColorSet;
 

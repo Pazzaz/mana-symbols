@@ -3,7 +3,7 @@ use std::{
     str::FromStr,
 };
 
-/// The five [colors](https://mtg.wiki/page/Color) of the color pie.
+/// One of the five [colors](https://mtg.wiki/page/Color) of the color pie.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Color {
     /// [White](https://mtg.wiki/page/White) (W)
