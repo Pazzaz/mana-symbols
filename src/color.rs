@@ -4,7 +4,7 @@ use std::{
 };
 
 /// The five [colors](https://mtg.wiki/page/Color) of the color pie.
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Color {
     /// [White](https://mtg.wiki/page/White) (W)
     White = 0,

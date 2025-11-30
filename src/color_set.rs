@@ -4,9 +4,10 @@ pub(crate) struct ColorSet {
     bitset: u8,
 }
 
-const VALUES: usize = 0b11111 + 1;
+/// There are 2 ^ 5 different color-sets
+const COLOR_SETS: usize = 0b11111 + 1;
 
-const fn add_order(a: &mut [[u8; 5]; VALUES], color: Color, offsets: &[usize]) {
+const fn add_order(a: &mut [[u8; 5]; COLOR_SETS], color: Color, offsets: &[usize]) {
     let mut set = ColorSet::new();
     let mut i: usize = 0;
     while i < offsets.len() {
@@ -23,8 +24,8 @@ const fn add_order(a: &mut [[u8; 5]; VALUES], color: Color, offsets: &[usize]) {
 }
 
 // We precompute the order of each color combination
-const ORDER_ARRAY: [[u8; 5]; VALUES] = {
-    let mut array = [[0; 5]; VALUES];
+const ORDER_ARRAY: [[u8; 5]; COLOR_SETS] = {
+    let mut array = [[0; 5]; COLOR_SETS];
     let mut color_i = 0;
     while color_i != 5 {
         let color = ALL_COLORS[color_i];
@@ -78,13 +79,39 @@ impl ColorSet {
 mod tests {
     use super::*;
 
+    fn sort_colors(colors: &mut [Color], goal: &[Color]) {
+        let mut color_set = ColorSet::new();
+        for &c in colors.iter() {
+            color_set.set_color(c);
+        }
+
+        let order = color_set.order_values();
+        colors.sort_by_key(|x| order[*x as usize]);
+
+        assert_eq!(colors, goal);
+    }
+
+    #[test]
+    fn sort_five() {
+        let mut colors = ALL_COLORS;
+        sort_colors(&mut colors, &ALL_COLORS);
+    }
+
+    #[test]
+    fn sort_two() {
+        let mut unsorted = [Color::Green, Color::Red];
+        let sorted = [Color::Red, Color::Green];
+        sort_colors(&mut unsorted, &sorted);
+
+        let mut unsorted = [Color::Green, Color::Black];
+        let sorted = [Color::Black, Color::Green];
+        sort_colors(&mut unsorted, &sorted);
+    }
+
     #[test]
     fn urw() {
-        let mut set = ColorSet::new();
-        set.set_color(Color::Blue);
-        set.set_color(Color::Red);
-        set.set_color(Color::White);
-
-        assert_eq!(ORDER_ARRAY[set.bitset as usize], [2, 0, 0, 1, 0]);
+        let mut unsorted = [Color::White, Color::Red, Color::Blue];
+        let sorted = [Color::Blue, Color::Red, Color::White];
+        sort_colors(&mut unsorted, &sorted);
     }
 }
