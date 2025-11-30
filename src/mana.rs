@@ -5,6 +5,9 @@ use std::{
 
 use crate::{Color, GenericMana, SingleMana, SplitMana};
 
+/// A mana symbol.
+///
+/// Any symbol that could be used as part of a mana cost.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Mana {
     Single(SingleMana),
@@ -60,6 +63,28 @@ impl Mana {
         }
     }
 
+    /// Normalize left/right side of a hybrid mana symbol (does nothing if it's
+    /// not a hybrid mana symbol).
+    pub fn normalize_hybrid(&mut self) {
+        match self {
+            Mana::Split(split_mana) => split_mana.normalize(),
+            Mana::Single(_) | Mana::Generic(_) | Mana::Colorless | Mana::Snow => {}
+        }
+    }
+
+    /// The left half color of a mana symbol.
+    ///
+    /// ```
+    /// use mana_symbols::{Color, Mana};
+    ///
+    /// let u: Mana = "U".parse().unwrap();
+    /// let c: Mana = "C".parse().unwrap();
+    /// let rg_phyrexian: Mana = "R/G/P".parse().unwrap();
+    ///
+    /// assert_eq!(u.left_half_color(), Some(Color::Blue));
+    /// assert_eq!(c.left_half_color(), None);
+    /// assert_eq!(rg_phyrexian.left_half_color(), Some(Color::Red));
+    /// ```
     pub fn left_half_color(&self) -> Option<Color> {
         match self {
             Mana::Single(single_mana) => Some(single_mana.color()),
@@ -70,6 +95,19 @@ impl Mana {
         }
     }
 
+    /// The right half color of a mana symbol.
+    ///
+    /// ```
+    /// use mana_symbols::{Color, Mana};
+    ///
+    /// let u: Mana = "U".parse().unwrap();
+    /// let c: Mana = "C".parse().unwrap();
+    /// let rg_phyrexian: Mana = "R/G/P".parse().unwrap();
+    ///
+    /// assert_eq!(u.right_half_color(), Some(Color::Blue));
+    /// assert_eq!(c.right_half_color(), None);
+    /// assert_eq!(rg_phyrexian.right_half_color(), Some(Color::Green));
+    /// ```
     pub fn right_half_color(&self) -> Option<Color> {
         match self {
             Mana::Single(single_mana) => Some(single_mana.color()),

@@ -15,6 +15,7 @@ pub(crate) use split_mana::SplitMana;
 
 use crate::color_set::ColorSet;
 
+/// Collection of mana symbols.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Manas {
     manas: Vec<Mana>,
@@ -40,32 +41,33 @@ impl FromStr for Manas {
 }
 
 impl Manas {
+    /// The total [mana value](https://mtg.wiki/page/Mana_value) of the mana symbols.
     pub fn mana_value(&self) -> usize {
         self.manas.iter().map(Mana::mana_value).sum()
     }
 
-    /// Normalizes hybrid mana symbols and sorts the mana symbols
-    pub fn normalize(&mut self) {
-        // Normalize hybrid mana
+    /// Normalize left/right side of hybrid mana symbols (see
+    /// [`Mana::normalize_hybrid`]).
+    pub fn normalize_hybrid(&mut self) {
         for mana in &mut self.manas {
-            match mana {
-                Mana::Split(split_mana) => split_mana.normalize(),
-                Mana::Single(_) | Mana::Generic(_) | Mana::Colorless | Mana::Snow => {}
-            }
+            mana.normalize_hybrid();
         }
+    }
 
-        // Sort the colors into 6 categories:
-        // 0. Generic
-        // 0.0 X
-        // 0.1 Y
-        // 0.2 Z
-        // 0.3 Number
-        // 1. Hybrid Generic
-        // 2. Colorless
-        // 3. Hybrid Colorless
-        // 4. Colored
-        // 5. Snow
-
+    /// Sorts the mana symbols in groups, then sorts those groups, in the
+    /// following order:
+    /// 1. Generic mana
+    ///     1. X
+    ///     2. Y
+    ///     3. Z
+    ///     4. Number
+    /// 2. Hybrid Generic mana (then based on their right half color)
+    /// 3. Colorless mana
+    /// 4. Hybrid Colorless mana (then based on their right half color)
+    /// 5. Colored mana (then based on their left half color, then on right half
+    ///    color)
+    /// 6. Snow mana
+    pub fn sort(&mut self) {
         self.manas.sort_by_key(|k| match k {
             Mana::Generic(GenericMana::X) => 0,
             Mana::Generic(GenericMana::Y) => 1,
@@ -78,13 +80,13 @@ impl Manas {
             Mana::Snow => 8,
         });
 
-        let (_, rest) = take_while(&mut self.manas, |x| matches!(x, Mana::Generic(_)));
+        let rest = skip(&mut self.manas, |x| matches!(x, Mana::Generic(_)));
 
         let (generic_hybrid, rest) =
             take_while(rest, |x| matches!(x, Mana::Split(SplitMana::Mono { .. })));
         sort_by_colors(generic_hybrid, |x| x.right_half_color().unwrap());
 
-        let (_, rest) = take_while(rest, |x| matches!(x, Mana::Colorless));
+        let rest = skip(rest, |x| matches!(x, Mana::Colorless));
 
         let (colorless_hybrid, rest) =
             take_while(rest, |x| matches!(x, Mana::Split(SplitMana::Colorless { .. })));
@@ -116,7 +118,7 @@ impl Manas {
             });
 
             // Discard non-hybrid mana
-            let (_, rest) = take_while(chunk, |x| matches!(x, Mana::Single(_)));
+            let rest = skip(chunk, |x| matches!(x, Mana::Single(_)));
 
             let (hybrid_non_phyrexian, hybrid_phyrexian) = take_while(rest, |x| {
                 if let Mana::Split(SplitMana::Duo { phyrexian, .. }) = x {
@@ -158,6 +160,11 @@ fn take_while<T, F: Fn(&T) -> bool>(a: &mut [T], pred: F) -> (&mut [T], &mut [T]
         }
     }
     a.split_at_mut(i)
+}
+
+fn skip<T, F: Fn(&T) -> bool>(a: &mut [T], pred: F) -> &mut [T] {
+    let (_, rest) = take_while(a, pred);
+    rest
 }
 
 struct GroupIterator<'a> {
@@ -230,7 +237,7 @@ mod tests {
         let after = "{X}{Y}{4}{2/B}{2/R}{C}{C/U}{B}{B/R/P}{R/P}{R/W}{G}{G/W/P}{W}{W/U}{S}";
         let mut manas_before = Manas::from_str(before).unwrap();
 
-        manas_before.normalize();
+        manas_before.sort();
         assert_eq!(manas_before.to_string(), after);
     }
 }
