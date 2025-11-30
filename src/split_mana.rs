@@ -42,11 +42,7 @@ impl FromStr for SplitMana {
             let b = Color::from_str(second)?;
             if phyrexian {
                 let a = Color::from_str(first)?;
-                Ok(SplitMana::Duo {
-                    a,
-                    b,
-                    phyrexian: true,
-                })
+                Ok(SplitMana::Duo { a, b, phyrexian: true })
             } else {
                 if first == "C" {
                     Ok(SplitMana::Colorless { color: b })
@@ -54,11 +50,7 @@ impl FromStr for SplitMana {
                     Ok(SplitMana::Mono { value, color: b })
                 } else {
                     let a = Color::from_str(first)?;
-                    Ok(SplitMana::Duo {
-                        a,
-                        b,
-                        phyrexian: false,
-                    })
+                    Ok(SplitMana::Duo { a, b, phyrexian: false })
                 }
             }
         } else {
@@ -77,11 +69,7 @@ impl SplitMana {
                 color_set.set_color(*b);
                 let order = color_set.order_values();
                 if order[*a as usize] > order[*b as usize] {
-                    *self = SplitMana::Duo {
-                        a: *b,
-                        b: *a,
-                        phyrexian: *phyrexian,
-                    }
+                    *self = SplitMana::Duo { a: *b, b: *a, phyrexian: *phyrexian }
                 }
             }
             _ => {}

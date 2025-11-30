@@ -5,13 +5,13 @@ mod mana;
 mod single_mana;
 mod split_mana;
 
+use std::{fmt::Display, str::FromStr};
+
 pub use color::Color;
 pub use generic_mana::GenericMana;
 pub use mana::Mana;
 pub use single_mana::SingleMana;
 pub use split_mana::SplitMana;
-
-use std::{fmt::Display, str::FromStr};
 
 use crate::color_set::ColorSet;
 
@@ -33,9 +33,8 @@ impl FromStr for Manas {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let manas: Result<Result<Vec<Mana>, ()>, ()> = GroupIterator::new(s)
-            .map(|x| x.map(Mana::from_str))
-            .collect();
+        let manas: Result<Result<Vec<Mana>, ()>, ()> =
+            GroupIterator::new(s).map(|x| x.map(Mana::from_str)).collect();
         manas.flatten().map(|manas| Manas { manas })
     }
 }
@@ -87,15 +86,13 @@ impl Manas {
 
         let (_, rest) = take_while(rest, |x| matches!(x, Mana::Colorless));
 
-        let (colorless_hybrid, rest) = take_while(rest, |x| {
-            matches!(x, Mana::Split(SplitMana::Colorless { .. }))
-        });
+        let (colorless_hybrid, rest) =
+            take_while(rest, |x| matches!(x, Mana::Split(SplitMana::Colorless { .. })));
 
         sort_by_colors(colorless_hybrid, |x| x.right_half_color().unwrap());
 
-        let (colored, snow) = take_while(rest, |x| {
-            matches!(x, Mana::Single(_) | Mana::Split(SplitMana::Duo { .. }))
-        });
+        let (colored, snow) =
+            take_while(rest, |x| matches!(x, Mana::Single(_) | Mana::Split(SplitMana::Duo { .. })));
 
         sort_by_colors(colored, |x| x.left_half_color().unwrap());
 
@@ -149,8 +146,8 @@ fn sort_by_colors<T, F: Fn(&T) -> Color>(a: &mut [T], pred: F) {
     a.sort_by_key(|x| order[pred(x) as usize]);
 }
 
-/// Every element in the first array will satisfy `pred` and the first element of
-/// the second array will not satisfy `pred` (or it will be empty).
+/// Every element in the first array will satisfy `pred` and the first element
+/// of the second array will not satisfy `pred` (or it will be empty).
 fn take_while<T, F: Fn(&T) -> bool>(a: &mut [T], pred: F) -> (&mut [T], &mut [T]) {
     let mut i = 0;
     while i < a.len() {

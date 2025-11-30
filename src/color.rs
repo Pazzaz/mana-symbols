@@ -18,13 +18,8 @@ pub enum Color {
     Green = 4,
 }
 
-pub(crate) const ALL_COLORS: [Color; 5] = [
-    Color::White,
-    Color::Blue,
-    Color::Black,
-    Color::Red,
-    Color::Green,
-];
+pub(crate) const ALL_COLORS: [Color; 5] =
+    [Color::White, Color::Blue, Color::Black, Color::Red, Color::Green];
 
 impl Display for Color {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
