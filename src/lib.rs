@@ -1,61 +1,13 @@
 // Based on: https://www.reddit.com/r/custommagic/comments/1nhtr3w/guide_for_formatting_mana_costs/
 
+mod color;
+mod color_set;
+
+pub use color::Color;
+
 use std::{fmt::{Display, Write}, str::FromStr};
 
-/// The five main colors:
-/// - White (W)
-/// - Blue (U),
-/// - Black (B),
-/// - Red (R),
-/// - Green (G),
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord)]
-pub enum Color {
-    White = 0,
-    Blue = 1,
-    Black = 2,
-    Red = 3,
-    Green = 4,
-}
-
-impl Display for Color {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Color::White => f.write_char('W'),
-            Color::Blue => f.write_char('U'),
-            Color::Black => f.write_char('B'),
-            Color::Red => f.write_char('R'),
-            Color::Green => f.write_char('G'),
-        }
-    }
-}
-
-impl FromStr for Color {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let color = match s {
-            "W" => Self::White,
-            "U" => Self::Blue,
-            "B" => Self::Black,
-            "R" => Self::Red,
-            "G" => Self::Green,
-            _ => return Err(()),
-        };
-        Ok(color)
-    }
-}
-
-impl Color {
-    const fn next_color(&self) -> Color {
-        match self {
-            Self::White => Self::Blue,
-            Self::Blue => Self::Black,
-            Self::Black => Self::Red,
-            Self::Red => Self::Green,
-            Self::Green => Self::White,
-        }
-    }
-}
+use crate::color_set::ColorSet;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMana {
@@ -498,126 +450,10 @@ impl<'a> Iterator for GroupIterator<'a> {
     }
 }
 
-struct ColorSet {
-    bitset: u8,
-}
-
-const VALUES: usize = 0b11111 + 1;
-
-const ALL_COLORS: [Color; 5] = [
-    Color::White,
-    Color::Blue,
-    Color::Black,
-    Color::Red,
-    Color::Green,
-];
-
-// We precompute the order of each color combination
-const ORDER_ARRAY: [[u8; 5]; VALUES] = {
-    let mut array = [[0; 5]; VALUES];
-
-    // when we have zero and one active bits we just return zeros
-    // so we start at two values
-    let mut color_i = 0;
-    while color_i != 5 {
-        let color = ALL_COLORS[color_i];
-        let next1 = color.next_color();
-        let next2 = next1.next_color();
-
-        // Adjacent color
-        {
-            let mut i = ColorSet::new();
-            i.set_color(color);
-            i.set_color(next1);
-            array[i.bitset as usize][next1 as usize] = 1;
-        }
-
-        // Two steps away
-        {
-            let mut i = ColorSet::new();
-            i.set_color(color);
-            i.set_color(next2);
-            array[i.bitset as usize][next2 as usize] = 1;
-        }
-
-        color_i += 1;
-    }
-
-    // Three colors
-    let mut color_i = 0;
-    while color_i != 5 {
-        let color = ALL_COLORS[color_i];
-        let next1 = color.next_color();
-        let next2 = next1.next_color();
-        let next3 = next2.next_color();
-
-        // Three adjacent colors
-        {
-            let mut i = ColorSet::new();
-            i.set_color(color);
-            i.set_color(next1);
-            i.set_color(next2);
-            array[i.bitset as usize][next1 as usize] = 1;
-            array[i.bitset as usize][next2 as usize] = 2;
-        }
-
-        // Two adjacent and one opposite
-        {
-            let mut i = ColorSet::new();
-            i.set_color(color);
-            i.set_color(next1);
-            i.set_color(next3);
-            array[i.bitset as usize][next3 as usize] = 1;
-            array[i.bitset as usize][color as usize] = 2;
-        }
-
-        color_i += 1;
-    }
-
-    // Four colors
-    let mut color_i = 0;
-    while color_i != 5 {
-        let color = ALL_COLORS[color_i];
-        let next1 = color.next_color();
-        let next2 = next1.next_color();
-        let next3 = next2.next_color();
-
-        {
-            let mut i = ColorSet::new();
-            i.set_color(color);
-            i.set_color(next1);
-            i.set_color(next2);
-            i.set_color(next3);
-            array[i.bitset as usize][next1 as usize] = 1;
-            array[i.bitset as usize][next2 as usize] = 2;
-            array[i.bitset as usize][next3 as usize] = 3;
-        }
-
-        color_i += 1;
-    }
-
-    // Five colors
-    array[0b11111] = [0, 1, 2, 3, 4];
-
-    array
-};
-
-impl ColorSet {
-    const fn new() -> Self {
-        Self { bitset: 0 }
-    }
-
-    const fn set_color(&mut self, color: Color) {
-        self.bitset |= 1 << color as u8;
-    }
-
-    fn order_values(&self) -> &[u8] {
-        &ORDER_ARRAY[self.bitset as usize]
-    }
-}
-
 #[cfg(test)]
 mod tests {
+    use crate::color::ALL_COLORS;
+
     use super::*;
 
     fn sort_colors(colors: &mut [Color], goal: &[Color]) {
