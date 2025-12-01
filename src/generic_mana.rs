@@ -1,7 +1,4 @@
-use std::{
-    fmt::{Display, Write},
-    str::FromStr,
-};
+use std::fmt::{Display, Write};
 
 use nom::{
     IResult, Parser, branch::alt, bytes::complete::take_while, character::complete::char,
@@ -24,26 +21,6 @@ impl Display for GenericMana {
             GenericMana::Y => f.write_char('Y'),
             GenericMana::Z => f.write_char('Z'),
         }
-    }
-}
-
-impl FromStr for GenericMana {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mana = match s {
-            "X" => Self::X,
-            "Y" => Self::Y,
-            "Z" => Self::Z,
-            s => {
-                if let Ok(n) = s.parse::<usize>() {
-                    Self::Number(n)
-                } else {
-                    return Err(());
-                }
-            }
-        };
-        Ok(mana)
     }
 }
 

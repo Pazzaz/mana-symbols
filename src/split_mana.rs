@@ -1,4 +1,4 @@
-use std::{fmt::Display, str::FromStr};
+use std::fmt::Display;
 
 use nom::{
     IResult, Parser,
@@ -29,40 +29,6 @@ impl Display for SplitMana {
                     write!(f, "{a}/{b}")
                 }
             }
-        }
-    }
-}
-
-impl FromStr for SplitMana {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if let Some((first, mut second)) = s.split_once('/') {
-            let phyrexian: bool;
-            (second, phyrexian) = {
-                if let Some((new_second, third)) = second.split_once('/') {
-                    (new_second, third == "P")
-                } else {
-                    (second, false)
-                }
-            };
-
-            let b = Color::from_str(second)?;
-            if phyrexian {
-                let a = Color::from_str(first)?;
-                Ok(SplitMana::Duo { a, b, phyrexian: true })
-            } else {
-                if first == "C" {
-                    Ok(SplitMana::Colorless { color: b })
-                } else if let Ok(value) = first.parse::<usize>() {
-                    Ok(SplitMana::Mono { value, color: b })
-                } else {
-                    let a = Color::from_str(first)?;
-                    Ok(SplitMana::Duo { a, b, phyrexian: false })
-                }
-            }
-        } else {
-            Err(())
         }
     }
 }

@@ -1,6 +1,6 @@
 use std::{fmt::Display, str::FromStr};
 
-use nom::{IResult, Parser, multi::many0};
+use nom::{Finish, IResult, Parser, combinator::eof, multi::many0, sequence::terminated};
 
 use crate::{Color, GenericMana, Mana, SingleMana, SplitMana, color_set::ColorSet};
 
@@ -23,9 +23,12 @@ impl FromStr for Manas {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let manas: Result<Result<Vec<Mana>, ()>, ()> =
-            GroupIterator::new(s).map(|x| x.map(Mana::from_str)).collect();
-        manas.flatten().map(|manas| Manas { manas })
+        let p = terminated(Self::parse, eof).parse(s).finish();
+
+        match p {
+            Ok((_, mana)) => Ok(mana),
+            Err(_) => Err(()),
+        }
     }
 }
 
@@ -127,7 +130,7 @@ impl Manas {
     }
 
     pub fn parse(input: &str) -> IResult<&str, Self> {
-        let (rest, res) = many0(Mana::parse_possible_brackets).parse(input)?;
+        let (rest, res) = many0(Mana::parse).parse(input)?;
         Ok((rest, Self { manas: res }))
     }
 }
@@ -159,41 +162,6 @@ fn take_while<T, F: Fn(&T) -> bool>(a: &mut [T], pred: F) -> (&mut [T], &mut [T]
 fn skip<T, F: Fn(&T) -> bool>(a: &mut [T], pred: F) -> &mut [T] {
     let (_, rest) = take_while(a, pred);
     rest
-}
-
-struct GroupIterator<'a> {
-    s: &'a str,
-    pos: usize,
-}
-
-impl<'a> GroupIterator<'a> {
-    fn new(s: &'a str) -> Self {
-        Self { s, pos: 0 }
-    }
-}
-
-impl<'a> Iterator for GroupIterator<'a> {
-    type Item = Result<&'a str, ()>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.s.len() == self.pos {
-            return None;
-        }
-
-        if self.s.as_bytes()[self.pos] != b'{' {
-            return Some(Err(()));
-        }
-
-        if let Some(end_past) = self.s[self.pos..].find('}') {
-            let end = self.pos + end_past;
-            let start = self.pos + 1;
-            self.pos = end + 1;
-
-            return Some(Ok(&self.s[start..end]));
-        } else {
-            return Some(Err(()));
-        }
-    }
 }
 
 #[cfg(test)]

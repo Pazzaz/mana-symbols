@@ -1,7 +1,4 @@
-use std::{
-    fmt::{Display, Write},
-    str::FromStr,
-};
+use std::fmt::{Display, Write};
 
 use nom::{IResult, Parser, branch::alt, character::complete::char, combinator::value};
 
@@ -32,22 +29,6 @@ impl Display for Color {
             Color::Red => f.write_char('R'),
             Color::Green => f.write_char('G'),
         }
-    }
-}
-
-impl FromStr for Color {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let color = match s {
-            "W" => Self::White,
-            "U" => Self::Blue,
-            "B" => Self::Black,
-            "R" => Self::Red,
-            "G" => Self::Green,
-            _ => return Err(()),
-        };
-        Ok(color)
     }
 }
 

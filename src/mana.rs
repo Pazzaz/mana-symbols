@@ -4,7 +4,11 @@ use std::{
 };
 
 use nom::{
-    IResult, Parser, branch::alt, character::complete::char, combinator::value, sequence::delimited,
+    Finish, IResult, Parser,
+    branch::alt,
+    character::complete::char,
+    combinator::{eof, value},
+    sequence::{delimited, terminated},
 };
 
 use crate::{Color, GenericMana, SingleMana, SplitMana};
@@ -37,18 +41,11 @@ impl FromStr for Mana {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if let Ok(single) = SingleMana::from_str(s) {
-            Ok(Mana::Single(single))
-        } else if let Ok(generic_mana) = GenericMana::from_str(s) {
-            Ok(Mana::Generic(generic_mana))
-        } else if let Ok(split) = SplitMana::from_str(s) {
-            Ok(Mana::Split(split))
-        } else if s == "C" {
-            Ok(Mana::Colorless)
-        } else if s == "S" {
-            Ok(Mana::Snow)
-        } else {
-            Err(())
+        let p = terminated(Self::parse, eof).parse(s).finish();
+
+        match p {
+            Ok((_, mana)) => Ok(mana),
+            Err(_) => Err(()),
         }
     }
 }
@@ -122,7 +119,7 @@ impl Mana {
         }
     }
 
-    pub fn parse(input: &str) -> IResult<&str, Self> {
+    fn parse_inner(input: &str) -> IResult<&str, Self> {
         let single = SingleMana::parse.map(Self::Single);
         let generic = GenericMana::parse.map(Self::Generic);
         let split = SplitMana::parse.map(Self::Split);
@@ -133,8 +130,34 @@ impl Mana {
         alt((split, generic, single, colorless, snow)).parse(input)
     }
 
-    pub fn parse_possible_brackets(input: &str) -> IResult<&str, Self> {
-        let brackets = delimited(char('{'), Self::parse, char('}'));
-        alt((brackets, Self::parse)).parse(input)
+    pub fn parse(input: &str) -> IResult<&str, Self> {
+        let brackets = delimited(char('{'), Self::parse_inner, char('}'));
+        alt((brackets, Self::parse_inner)).parse(input)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_empty() {
+        assert!(Mana::from_str("{}").is_err());
+    }
+
+    #[test]
+    fn parse_u() {
+        assert!(Mana::from_str("U").is_ok());
+    }
+
+    #[test]
+    fn parse_with_whitespace() {
+        assert!(Mana::from_str("U ").is_err());
+        assert!(Mana::from_str(" U").is_err());
+    }
+
+    #[test]
+    fn parse_with_brackets() {
+        assert!(Mana::from_str("{U}").is_ok());
     }
 }

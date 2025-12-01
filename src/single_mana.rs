@@ -1,4 +1,4 @@
-use std::{fmt::Display, str::FromStr};
+use std::fmt::Display;
 
 use nom::{IResult, Parser, branch::alt, bytes::complete::tag, sequence::terminated};
 
@@ -15,23 +15,6 @@ impl Display for SingleMana {
         match self {
             SingleMana::Normal(color) => color.fmt(f),
             SingleMana::Phyrexian(color) => write!(f, "{}/P", color),
-        }
-    }
-}
-
-impl FromStr for SingleMana {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if let Some(color) = Color::from_str(s).ok() {
-            Ok(Self::Normal(color))
-        } else if let Some((first, second)) = s.split_once('/')
-            && second == "P"
-        {
-            let color = Color::from_str(first)?;
-            Ok(Self::Phyrexian(color))
-        } else {
-            Err(())
         }
     }
 }
