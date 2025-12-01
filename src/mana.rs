@@ -16,7 +16,10 @@ use svg::{
     node::element::{Circle, Path, SVG, path::Data},
 };
 
-use crate::{Color, GenericMana, SingleMana, SplitMana, color::HEX_C};
+use crate::{
+    Color, GenericMana, SingleMana, SplitMana,
+    color::{HEX_C, parse_svg},
+};
 
 /// A mana symbol
 ///
@@ -145,24 +148,94 @@ impl Mana {
         let mut document = Document::new().set("viewBox", (0, 0, 100, 100));
 
         document = match self {
-            Mana::Single(SingleMana::Normal(color)) => with_circle(document, color.hex()),
+            Mana::Single(SingleMana::Normal(color)) => {
+                document = with_circle(document, color.hex());
+                with_symbol(document, color.symbol())
+            }
             Mana::Single(SingleMana::Phyrexian(color)) => with_circle(document, color.hex()),
             Mana::Generic(_) => with_circle(document, HEX_C),
             Mana::Split(SplitMana::Colorless { color }) => {
-                with_split_circle(document, HEX_C, color.hex())
+                document = with_split_circle(document, HEX_C, color.hex());
+                with_symbols(document, colorless_symbol(), color.symbol())
             }
             Mana::Split(SplitMana::Mono { color, .. }) => {
                 with_split_circle(document, HEX_C, color.hex())
             }
-            Mana::Split(SplitMana::Duo { a, b, .. }) => {
-                with_split_circle(document, a.hex(), b.hex())
+            Mana::Split(SplitMana::Duo { a, b, phyrexian }) => {
+                document = with_split_circle(document, a.hex(), b.hex());
+                if *phyrexian {
+                    with_symbols(document, phyrexian_symbol(), phyrexian_symbol())
+                } else {
+                    with_symbols(document, a.symbol(), b.symbol())
+                }
             }
-            Mana::Colorless => with_circle(document, HEX_C),
-            Mana::Snow => with_circle(document, HEX_C),
+            Mana::Colorless => {
+                document = with_circle(document, HEX_C);
+                with_symbol(document, colorless_symbol())
+            }
+            Mana::Snow => {
+                document = with_circle(document, HEX_C);
+                with_symbol(document, snow_symbol())
+            }
         };
 
         document
     }
+}
+
+fn colorless_symbol() -> SVG {
+    let content = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/c.svg"));
+    parse_svg(content)
+}
+
+fn phyrexian_symbol() -> SVG {
+    let content = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/p.svg"));
+    parse_svg(content)
+}
+
+fn snow_symbol() -> SVG {
+    let content = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/s.svg"));
+    parse_svg(content)
+}
+
+#[must_use]
+fn with_symbol(document: SVG, symbol: SVG) -> SVG {
+    let width = 80.0;
+    let x_pos = 50.0;
+    let y_pos = 50.0;
+    let symbol = symbol
+        .set("width", width)
+        .set("height", width)
+        .set("x", x_pos - width / 2.0)
+        .set("y", y_pos - width / 2.0);
+    document.add(symbol)
+}
+
+#[must_use]
+fn with_symbols(mut document: SVG, symbol_left: SVG, symbol_right: SVG) -> SVG {
+    let pi = f64::consts::PI;
+    let x_right = f64::cos(pi / 4.0) * 25.0 + 50.0;
+    let y_right = f64::sin(pi / 4.0) * 25.0 + 50.0;
+
+    let x_left = f64::cos(pi / 4.0 + pi) * 25.0 + 50.0;
+    let y_left = f64::sin(pi / 4.0 + pi) * 25.0 + 50.0;
+
+    let width = 43.0;
+    let symbol = symbol_right
+        .set("width", width)
+        .set("height", width)
+        .set("x", x_right - width / 2.0)
+        .set("y", y_right - width / 2.0);
+
+    document = document.add(symbol);
+
+    let symbol = symbol_left
+        .set("width", width)
+        .set("height", width)
+        .set("x", x_left - width / 2.0)
+        .set("y", y_left - width / 2.0);
+
+    document.add(symbol)
 }
 
 #[must_use]

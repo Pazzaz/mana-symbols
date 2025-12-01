@@ -1,0 +1,6 @@
+---
+source: tests/mana.rs
+expression: svg.to_string().as_bytes().into_iter().cloned().collect()
+extension: svg
+snapshot_kind: binary
+---

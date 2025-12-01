@@ -46,3 +46,13 @@ fn hybrid_phyrexian() {
 fn colorless_hybrid() {
     test_render("c_w.svg", "C/W");
 }
+
+#[test]
+fn colorless() {
+    test_render("c.svg", "C");
+}
+
+#[test]
+fn snow() {
+    test_render("s.svg", "S");
+}
