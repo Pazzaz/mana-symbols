@@ -135,6 +135,18 @@ impl Manas {
     }
 }
 
+impl From<Manas> for Vec<Mana> {
+    fn from(value: Manas) -> Self {
+        value.manas
+    }
+}
+
+impl From<Vec<Mana>> for Manas {
+    fn from(value: Vec<Mana>) -> Self {
+        Manas { manas: value }
+    }
+}
+
 fn sort_by_colors<T, F: Fn(&T) -> Color>(a: &mut [T], pred: F) {
     let mut color_set = ColorSet::new();
     for v in &*a {
