@@ -58,7 +58,8 @@ impl FromStr for Manas {
 }
 
 impl Manas {
-    /// The total [mana value](https://mtg.wiki/page/Mana_value) of the mana symbols.
+    /// The total [mana value](https://mtg.wiki/page/Mana_value) (see
+    /// [`Mana::mana_value`]).
     #[must_use]
     pub fn mana_value(&self) -> usize {
         self.manas.iter().map(Mana::mana_value).sum()
@@ -87,7 +88,7 @@ impl Manas {
     /// 6. Snow mana
     ///
     /// This algorithm was proposed by [`/u/Mean-Government1436`][reddit:user]
-    /// in [a post on /r/custommagic][reddit:post].
+    /// in [a post on `/r/custommagic`][reddit:post].
     ///
     /// [reddit:user]: https://www.reddit.com/user/Mean-Government1436
     /// [reddit:post]: https://www.reddit.com/r/custommagic/comments/1nhtr3w/guide_for_formatting_mana_costs/

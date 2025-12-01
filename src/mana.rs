@@ -51,7 +51,7 @@ impl FromStr for Mana {
 }
 
 impl Mana {
-    /// The total [mana value](https://mtg.wiki/page/Mana_value) of the mana symbol.
+    /// The [mana value](https://mtg.wiki/page/Mana_value).
     #[must_use]
     pub const fn mana_value(&self) -> usize {
         match self {
