@@ -28,11 +28,11 @@ pub enum Mana {
 impl Display for Mana {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Mana::Single(single_mana) => single_mana.fmt(f),
-            Mana::Generic(generic_mana) => generic_mana.fmt(f),
-            Mana::Split(split_mana) => split_mana.fmt(f),
-            Mana::Colorless => f.write_char('C'),
-            Mana::Snow => f.write_char('S'),
+            Self::Single(single_mana) => single_mana.fmt(f),
+            Self::Generic(generic_mana) => generic_mana.fmt(f),
+            Self::Split(split_mana) => split_mana.fmt(f),
+            Self::Colorless => f.write_char('C'),
+            Self::Snow => f.write_char('S'),
         }
     }
 }
@@ -51,25 +51,25 @@ impl FromStr for Mana {
 }
 
 impl Mana {
-    pub fn mana_value(&self) -> usize {
+    #[must_use]
+    pub const fn mana_value(&self) -> usize {
         match self {
-            Mana::Generic(GenericMana::Number(v)) => *v,
-            Mana::Generic(GenericMana::X)
-            | Mana::Generic(GenericMana::Y)
-            | Mana::Generic(GenericMana::Z) => 0,
-            Mana::Split(SplitMana::Mono { value, .. }) => *value,
-            Mana::Split(SplitMana::Duo { .. }) => 1,
-            Mana::Split(SplitMana::Colorless { .. }) => 1,
-            Mana::Single { .. } | Mana::Colorless | Mana::Snow => 1,
+            Self::Generic(GenericMana::Number(v)) => *v,
+            Self::Generic(GenericMana::X | GenericMana::Y | GenericMana::Z) => 0,
+            Self::Split(SplitMana::Mono { value, .. }) => *value,
+            Self::Split(SplitMana::Duo { .. } | SplitMana::Colorless { .. })
+            | Self::Single { .. }
+            | Self::Colorless
+            | Self::Snow => 1,
         }
     }
 
     /// Normalize left/right side of a hybrid mana symbol (does nothing if it's
     /// not a hybrid mana symbol).
-    pub fn normalize_hybrid(&mut self) {
+    pub const fn normalize_hybrid(&mut self) {
         match self {
-            Mana::Split(split_mana) => split_mana.normalize(),
-            Mana::Single(_) | Mana::Generic(_) | Mana::Colorless | Mana::Snow => {}
+            Self::Split(split_mana) => split_mana.normalize(),
+            Self::Single(_) | Self::Generic(_) | Self::Colorless | Self::Snow => {}
         }
     }
 
@@ -86,13 +86,12 @@ impl Mana {
     /// assert_eq!(c.left_half_color(), None);
     /// assert_eq!(rg_phyrexian.left_half_color(), Some(Color::Red));
     /// ```
-    pub fn left_half_color(&self) -> Option<Color> {
+    #[must_use]
+    pub const fn left_half_color(&self) -> Option<Color> {
         match self {
-            Mana::Single(single_mana) => Some(single_mana.color()),
-            Mana::Generic(_) => None,
-            Mana::Split(split_mana) => split_mana.left_half_color(),
-            Mana::Colorless => None,
-            Mana::Snow => None,
+            Self::Single(single_mana) => Some(single_mana.color()),
+            Self::Split(split_mana) => split_mana.left_half_color(),
+            Self::Generic(_) | Self::Colorless | Self::Snow => None,
         }
     }
 
@@ -109,13 +108,12 @@ impl Mana {
     /// assert_eq!(c.right_half_color(), None);
     /// assert_eq!(rg_phyrexian.right_half_color(), Some(Color::Green));
     /// ```
-    pub fn right_half_color(&self) -> Option<Color> {
+    #[must_use]
+    pub const fn right_half_color(&self) -> Option<Color> {
         match self {
-            Mana::Single(single_mana) => Some(single_mana.color()),
-            Mana::Generic(_) => None,
-            Mana::Split(split_mana) => split_mana.right_half_color(),
-            Mana::Colorless => None,
-            Mana::Snow => None,
+            Self::Single(single_mana) => Some(single_mana.color()),
+            Self::Split(split_mana) => Some(split_mana.right_half_color()),
+            Self::Generic(_) | Self::Colorless | Self::Snow => None,
         }
     }
 

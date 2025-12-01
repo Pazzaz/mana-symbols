@@ -16,21 +16,21 @@ pub enum GenericMana {
 impl Display for GenericMana {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            GenericMana::Number(x) => x.fmt(f),
-            GenericMana::X => f.write_char('X'),
-            GenericMana::Y => f.write_char('Y'),
-            GenericMana::Z => f.write_char('Z'),
+            Self::Number(x) => x.fmt(f),
+            Self::X => f.write_char('X'),
+            Self::Y => f.write_char('Y'),
+            Self::Z => f.write_char('Z'),
         }
     }
 }
 
 impl GenericMana {
-    pub fn parse(input: &str) -> IResult<&str, GenericMana> {
-        let x = value(GenericMana::X, char('X'));
-        let y = value(GenericMana::Y, char('Y'));
-        let z = value(GenericMana::Z, char('Z'));
-        let number = take_while(|c: char| c.is_numeric())
-            .map_res(|s: &str| s.parse().map(GenericMana::Number));
+    pub fn parse(input: &str) -> IResult<&str, Self> {
+        let x = value(Self::X, char('X'));
+        let y = value(Self::Y, char('Y'));
+        let z = value(Self::Z, char('Z'));
+        let number =
+            take_while(|c: char| c.is_numeric()).map_res(|s: &str| s.parse().map(Self::Number));
         alt((x, y, z, number)).parse(input)
     }
 }

@@ -17,23 +17,23 @@ pub enum Color {
     Green = 4,
 }
 
-pub(crate) const ALL_COLORS: [Color; 5] =
+pub const ALL_COLORS: [Color; 5] =
     [Color::White, Color::Blue, Color::Black, Color::Red, Color::Green];
 
 impl Display for Color {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Color::White => f.write_char('W'),
-            Color::Blue => f.write_char('U'),
-            Color::Black => f.write_char('B'),
-            Color::Red => f.write_char('R'),
-            Color::Green => f.write_char('G'),
+            Self::White => f.write_char('W'),
+            Self::Blue => f.write_char('U'),
+            Self::Black => f.write_char('B'),
+            Self::Red => f.write_char('R'),
+            Self::Green => f.write_char('G'),
         }
     }
 }
 
 impl Color {
-    const fn from_usize(n: usize) -> Color {
+    const fn from_usize(n: usize) -> Self {
         match n % 5 {
             0 => Self::White,
             1 => Self::Blue,
@@ -44,16 +44,16 @@ impl Color {
         }
     }
 
-    pub(crate) const fn next(&self, i: usize) -> Color {
-        Self::from_usize((*self as usize).wrapping_add(i))
+    pub(crate) const fn next(self, i: usize) -> Self {
+        Self::from_usize((self as usize).wrapping_add(i))
     }
 
-    pub fn parse(input: &str) -> IResult<&str, Color> {
-        let w = value(Color::White, char('W'));
-        let u = value(Color::Blue, char('U'));
-        let b = value(Color::Black, char('B'));
-        let r = value(Color::Red, char('R'));
-        let g = value(Color::Green, char('G'));
+    pub fn parse(input: &str) -> IResult<&str, Self> {
+        let w = value(Self::White, char('W'));
+        let u = value(Self::Blue, char('U'));
+        let b = value(Self::Black, char('B'));
+        let r = value(Self::Red, char('R'));
+        let g = value(Self::Green, char('G'));
         alt((w, u, b, r, g)).parse(input)
     }
 }

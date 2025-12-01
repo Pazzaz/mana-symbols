@@ -13,22 +13,22 @@ pub enum SingleMana {
 impl Display for SingleMana {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            SingleMana::Normal(color) => color.fmt(f),
-            SingleMana::Phyrexian(color) => write!(f, "{}/P", color),
+            Self::Normal(color) => color.fmt(f),
+            Self::Phyrexian(color) => write!(f, "{color}/P"),
         }
     }
 }
 
 impl SingleMana {
-    pub fn color(&self) -> Color {
+    pub const fn color(self) -> Color {
         match self {
-            SingleMana::Normal(color) | SingleMana::Phyrexian(color) => *color,
+            Self::Normal(color) | Self::Phyrexian(color) => color,
         }
     }
 
-    pub fn parse(input: &str) -> IResult<&str, SingleMana> {
-        let phyrexian = terminated(Color::parse, tag("/P")).map(SingleMana::Phyrexian);
-        let normal = Color::parse.map(SingleMana::Normal);
+    pub fn parse(input: &str) -> IResult<&str, Self> {
+        let phyrexian = terminated(Color::parse, tag("/P")).map(Self::Phyrexian);
+        let normal = Color::parse.map(Self::Normal);
         alt((phyrexian, normal)).parse(input)
     }
 }

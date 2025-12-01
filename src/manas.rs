@@ -96,14 +96,13 @@ impl Manas {
                 Mana::Single(SingleMana::Normal(_)) => 0,
                 Mana::Single(SingleMana::Phyrexian(_)) => 1,
                 Mana::Split(SplitMana::Duo { phyrexian, .. }) => {
-                    if !*phyrexian {
-                        2
-                    } else {
+                    if *phyrexian {
                         3
+                    } else {
+                        2
                     }
                 }
-                Mana::Split(SplitMana::Colorless { .. })
-                | Mana::Split(SplitMana::Mono { .. })
+                Mana::Split(SplitMana::Colorless { .. } | SplitMana::Mono { .. })
                 | Mana::Colorless
                 | Mana::Generic(_)
                 | Mana::Snow => unreachable!(),
@@ -143,7 +142,7 @@ impl From<Manas> for Vec<Mana> {
 
 impl From<Vec<Mana>> for Manas {
     fn from(value: Vec<Mana>) -> Self {
-        Manas { manas: value }
+        Self { manas: value }
     }
 }
 
@@ -162,10 +161,10 @@ fn sort_by_colors<T, F: Fn(&T) -> Color>(a: &mut [T], pred: F) {
 fn take_while<T, F: Fn(&T) -> bool>(a: &mut [T], pred: F) -> (&mut [T], &mut [T]) {
     let mut i = 0;
     while i < a.len() {
-        if !pred(&a[i]) {
-            break;
-        } else {
+        if pred(&a[i]) {
             i += 1;
+        } else {
+            break;
         }
     }
     a.split_at_mut(i)

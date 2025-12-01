@@ -1,6 +1,6 @@
 use crate::{Color, color::ALL_COLORS};
 
-pub(crate) struct ColorSet {
+pub struct ColorSet {
     bitset: u8,
 }
 

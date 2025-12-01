@@ -20,9 +20,9 @@ pub enum SplitMana {
 impl Display for SplitMana {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            SplitMana::Mono { value, color } => write!(f, "{}/{}", value, color),
-            SplitMana::Colorless { color } => write!(f, "C/{}", color),
-            SplitMana::Duo { a, b, phyrexian } => {
+            Self::Mono { value, color } => write!(f, "{value}/{color}"),
+            Self::Colorless { color } => write!(f, "C/{color}"),
+            Self::Duo { a, b, phyrexian } => {
                 if *phyrexian {
                     write!(f, "{a}/{b}/P")
                 } else {
@@ -34,50 +34,44 @@ impl Display for SplitMana {
 }
 
 impl SplitMana {
-    pub fn normalize(&mut self) {
-        match self {
+    pub const fn normalize(&mut self) {
+        if let Self::Duo { a, b, phyrexian } = self {
             // We sort hybrid mana with two colors
-            SplitMana::Duo { a, b, phyrexian } => {
-                let mut color_set = ColorSet::new();
-                color_set.set_color(*a);
-                color_set.set_color(*b);
-                let order = color_set.order_values();
-                if order[*a as usize] > order[*b as usize] {
-                    *self = SplitMana::Duo { a: *b, b: *a, phyrexian: *phyrexian }
-                }
+            let mut color_set = ColorSet::new();
+            color_set.set_color(*a);
+            color_set.set_color(*b);
+            let order = color_set.order_values();
+            if order[*a as usize] > order[*b as usize] {
+                *self = Self::Duo { a: *b, b: *a, phyrexian: *phyrexian }
             }
-            _ => {}
         }
     }
 
-    pub fn left_half_color(&self) -> Option<Color> {
+    pub const fn left_half_color(&self) -> Option<Color> {
         match self {
-            SplitMana::Mono { .. } => None,
-            SplitMana::Colorless { .. } => None,
-            SplitMana::Duo { a, .. } => Some(*a),
+            Self::Mono { .. } | Self::Colorless { .. } => None,
+            Self::Duo { a, .. } => Some(*a),
         }
     }
 
-    pub fn right_half_color(&self) -> Option<Color> {
+    pub const fn right_half_color(&self) -> Color {
         match self {
-            SplitMana::Mono { color, .. } => Some(*color),
-            SplitMana::Colorless { color } => Some(*color),
-            SplitMana::Duo { b, .. } => Some(*b),
+            Self::Mono { color, .. } | Self::Colorless { color } => *color,
+            Self::Duo { b, .. } => *b,
         }
     }
 
-    pub fn parse(input: &str) -> IResult<&str, SplitMana> {
-        let colorless =
-            preceded(tag("C/"), Color::parse).map(|color| SplitMana::Colorless { color });
+    pub fn parse(input: &str) -> IResult<&str, Self> {
+        let colorless = preceded(tag("C/"), Color::parse).map(|color| Self::Colorless { color });
         let phyrexian =
             terminated(separated_pair(Color::parse, char('/'), Color::parse), tag("/P"))
-                .map(|(a, b)| SplitMana::Duo { a, b, phyrexian: true });
+                .map(|(a, b)| Self::Duo { a, b, phyrexian: true });
         let normal = separated_pair(Color::parse, char('/'), Color::parse)
-            .map(|(a, b)| SplitMana::Duo { a, b, phyrexian: false });
+            .map(|(a, b)| Self::Duo { a, b, phyrexian: false });
 
         let number = take_while(char::is_numeric).map_res(|s: &str| s.parse::<usize>());
         let generic = separated_pair(number, char('/'), Color::parse)
-            .map(|(n, color)| SplitMana::Mono { value: n, color });
+            .map(|(n, color)| Self::Mono { value: n, color });
         alt((colorless, phyrexian, normal, generic)).parse(input)
     }
 }
