@@ -2,7 +2,7 @@ use std::fmt::{Display, Write};
 
 use nom::{IResult, Parser, branch::alt, character::complete::char, combinator::value};
 
-/// One of the five [colors](https://mtg.wiki/page/Color) of the color pie.
+/// One of the five [colors](https://mtg.wiki/page/Color) of the color pie
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Color {
     /// [White](https://mtg.wiki/page/White) (W)
@@ -48,7 +48,7 @@ impl Color {
         Self::from_usize((self as usize).wrapping_add(i))
     }
 
-    pub fn parse(input: &str) -> IResult<&str, Self> {
+    pub(crate) fn parse(input: &str) -> IResult<&str, Self> {
         let w = value(Self::White, char('W'));
         let u = value(Self::Blue, char('U'));
         let b = value(Self::Black, char('B'));

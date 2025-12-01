@@ -13,9 +13,9 @@ use nom::{
 
 use crate::{Color, GenericMana, SingleMana, SplitMana};
 
-/// A mana symbol.
+/// A mana symbol
 ///
-/// Any symbol that could be used as part of a mana cost.
+/// Any symbol that could be used as part of a [mana cost](https://mtg.wiki/page/Mana_cost).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Mana {
     Single(SingleMana),
@@ -51,6 +51,7 @@ impl FromStr for Mana {
 }
 
 impl Mana {
+    /// The total [mana value](https://mtg.wiki/page/Mana_value) of the mana symbol.
     #[must_use]
     pub const fn mana_value(&self) -> usize {
         match self {
@@ -128,6 +129,8 @@ impl Mana {
         alt((split, generic, single, colorless, snow)).parse(input)
     }
 
+    /// Parse `Mana` using [`nom`]. If you just want to parse normally, use
+    /// [`Mana::from_str`].
     pub fn parse(input: &str) -> IResult<&str, Self> {
         let brackets = delimited(char('{'), Self::parse_inner, char('}'));
         alt((brackets, Self::parse_inner)).parse(input)

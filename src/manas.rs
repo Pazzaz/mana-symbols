@@ -4,7 +4,32 @@ use nom::{Finish, IResult, Parser, combinator::eof, multi::many0, sequence::term
 
 use crate::{Color, GenericMana, Mana, SingleMana, SplitMana, color_set::ColorSet};
 
-/// Collection of mana symbols.
+/// Collection of mana symbols
+///
+/// These are the symbols which would represent the [mana cost](https://mtg.wiki/page/Mana_cost) of a card.
+///
+/// # Example
+///
+/// ```
+/// use mana_symbols::Manas;
+///
+/// // We can parse a textual representation, which may have brackets.
+/// let mut manas: Manas = "6R/PB/U{U}".parse().unwrap();
+///
+/// // Then we can print it with brackets
+/// assert_eq!(manas.to_string(), "{6}{R/P}{B/U}{U}");
+///
+/// // We can get its mana value
+/// assert_eq!(manas.mana_value(), 9);
+///
+/// // We can normalize the hybrid mana symbol
+/// manas.normalize_hybrid();
+/// assert_eq!(manas.to_string(), "{6}{R/P}{U/B}{U}");
+///
+/// // And we can sort it
+/// manas.sort();
+/// assert_eq!(manas.to_string(), "{6}{U}{U/B}{R/P}");
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Manas {
     manas: Vec<Mana>,
@@ -34,6 +59,7 @@ impl FromStr for Manas {
 
 impl Manas {
     /// The total [mana value](https://mtg.wiki/page/Mana_value) of the mana symbols.
+    #[must_use]
     pub fn mana_value(&self) -> usize {
         self.manas.iter().map(Mana::mana_value).sum()
     }
@@ -59,6 +85,12 @@ impl Manas {
     /// 5. Colored mana (then based on their left half color, then on right half
     ///    color)
     /// 6. Snow mana
+    ///
+    /// This algorithm was proposed by [`/u/Mean-Government1436`][reddit:user]
+    /// in [a post on /r/custommagic][reddit:post].
+    ///
+    /// [reddit:user]: https://www.reddit.com/user/Mean-Government1436
+    /// [reddit:post]: https://www.reddit.com/r/custommagic/comments/1nhtr3w/guide_for_formatting_mana_costs/
     pub fn sort(&mut self) {
         self.manas.sort_by_key(|k| match k {
             Mana::Generic(GenericMana::X) => 0,
@@ -128,6 +160,8 @@ impl Manas {
         }
     }
 
+    /// Parse `Manas` using [`nom`]. If you just want to parse normally, use
+    /// [`Manas::from_str`].
     pub fn parse(input: &str) -> IResult<&str, Self> {
         let (rest, res) = many0(Mana::parse).parse(input)?;
         Ok((rest, Self { manas: res }))
