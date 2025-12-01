@@ -33,6 +33,7 @@ impl Display for Color {
 }
 
 impl Color {
+    #[must_use]
     const fn from_usize(n: usize) -> Self {
         match n % 5 {
             0 => Self::White,
@@ -44,6 +45,7 @@ impl Color {
         }
     }
 
+    #[must_use]
     pub(crate) const fn next(self, i: usize) -> Self {
         Self::from_usize((self as usize).wrapping_add(i))
     }
@@ -56,4 +58,25 @@ impl Color {
         let g = value(Self::Green, char('G'));
         alt((w, u, b, r, g)).parse(input)
     }
+
+    #[must_use]
+    pub const fn hex(self) -> &'static str {
+        match self {
+            Color::White => HEX_W,
+            Color::Blue => HEX_U,
+            Color::Black => HEX_B,
+            Color::Red => HEX_R,
+            Color::Green => HEX_G,
+        }
+    }
 }
+
+// Colors of the five main colors
+pub const HEX_W: &str = "#fffbd5";
+pub const HEX_U: &str = "#aae0fa";
+pub const HEX_B: &str = "#cbc2bf";
+pub const HEX_R: &str = "#f9aa8f";
+pub const HEX_G: &str = "#9bd3ae";
+
+// Generic and colorless color
+pub const HEX_C: &str = "#cbc2bf";

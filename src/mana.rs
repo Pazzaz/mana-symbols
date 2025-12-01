@@ -1,4 +1,5 @@
 use std::{
+    f64,
     fmt::{Display, Write},
     str::FromStr,
 };
@@ -10,8 +11,12 @@ use nom::{
     combinator::{eof, value},
     sequence::{delimited, terminated},
 };
+use svg::{
+    Document,
+    node::element::{Circle, Path, SVG, path::Data},
+};
 
-use crate::{Color, GenericMana, SingleMana, SplitMana};
+use crate::{Color, GenericMana, SingleMana, SplitMana, color::HEX_C};
 
 /// A mana symbol
 ///
@@ -135,6 +140,66 @@ impl Mana {
         let brackets = delimited(char('{'), Self::parse_inner, char('}'));
         alt((brackets, Self::parse_inner)).parse(input)
     }
+
+    pub fn as_svg(&self) -> SVG {
+        let mut document = Document::new().set("viewBox", (0, 0, 100, 100));
+
+        document = match self {
+            Mana::Single(SingleMana::Normal(color)) => with_circle(document, color.hex()),
+            Mana::Single(SingleMana::Phyrexian(color)) => with_circle(document, color.hex()),
+            Mana::Generic(_) => with_circle(document, HEX_C),
+            Mana::Split(SplitMana::Colorless { color }) => {
+                with_split_circle(document, HEX_C, color.hex())
+            }
+            Mana::Split(SplitMana::Mono { color, .. }) => {
+                with_split_circle(document, HEX_C, color.hex())
+            }
+            Mana::Split(SplitMana::Duo { a, b, .. }) => {
+                with_split_circle(document, a.hex(), b.hex())
+            }
+            Mana::Colorless => with_circle(document, HEX_C),
+            Mana::Snow => with_circle(document, HEX_C),
+        };
+
+        document
+    }
+}
+
+#[must_use]
+fn with_circle(document: SVG, fill: &str) -> SVG {
+    let circle = Circle::new()
+        .set("fill", fill)
+        .set("stroke", "none")
+        .set("r", 50)
+        .set("cx", 50)
+        .set("cy", 50);
+    document.add(circle)
+}
+
+#[must_use]
+fn with_split_circle(mut document: SVG, fill_left: &str, fill_right: &str) -> SVG {
+    let pi = f64::consts::PI;
+    let x_right = f64::cos(pi / 4.0) * 50.0 + 50.0;
+    let y_right = -f64::sin(pi / 4.0) * 50.0 + 50.0;
+
+    let x_left = f64::cos(pi / 4.0 + pi) * 50.0 + 50.0;
+    let y_left = -f64::sin(pi / 4.0 + pi) * 50.0 + 50.0;
+
+    let data = Data::new()
+        .move_to((x_right, y_right))
+        .elliptical_arc_to((50, 50, 0, 0, 1, x_left, y_left))
+        .close();
+
+    let path = Path::new().set("d", data).set("fill", fill_right);
+    document = document.add(path);
+
+    let data = Data::new()
+        .move_to((x_right, y_right))
+        .elliptical_arc_to((50, 50, 0, 0, 0, x_left, y_left))
+        .close();
+
+    let path = Path::new().set("d", data).set("fill", fill_left);
+    document.add(path)
 }
 
 #[cfg(test)]

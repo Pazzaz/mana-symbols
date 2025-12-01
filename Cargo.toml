@@ -3,5 +3,9 @@ name = "mana-symbols"
 version = "0.1.0"
 edition = "2024"
 
+[dev-dependencies]
+insta = "1.44.3"
+
 [dependencies]
 nom = "8.0.0"
+svg = "0.18.0"

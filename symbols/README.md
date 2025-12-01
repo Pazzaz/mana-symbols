@@ -1,0 +1,1 @@
+These symbols were adapted from [andrewgioia/mana](https://github.com/andrewgioia/mana).
