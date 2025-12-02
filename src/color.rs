@@ -1,11 +1,6 @@
 use std::fmt::{Display, Write};
 
 use nom::{IResult, Parser, branch::alt, character::complete::char, combinator::value};
-use svg::{
-    Document,
-    node::element::{Path, SVG, path::Data},
-    parser::Event,
-};
 
 /// One of the five [colors](https://mtg.wiki/page/Color) of the color pie
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -74,33 +69,6 @@ impl Color {
             Color::Green => HEX_G,
         }
     }
-
-    #[must_use]
-    pub fn symbol(self) -> SVG {
-        let content = match self {
-            Color::White => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/w.svg")),
-            Color::Blue => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/u.svg")),
-            Color::Black => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/b.svg")),
-            Color::Red => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/r.svg")),
-            Color::Green => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/g.svg")),
-        };
-        parse_svg(content)
-    }
-}
-
-pub(crate) fn parse_svg(content: &str) -> SVG {
-    let document = Document::new().set("viewBox", (0, 0, 32, 32));
-
-    for event in svg::read(content).unwrap() {
-        if let Event::Tag("path", _, attributes) = event {
-            let data = attributes.get("d").unwrap();
-            let data = Data::parse(data).unwrap();
-            let path = Path::new().set("d", data);
-            return document.add(path);
-        }
-    }
-
-    panic!("Invalid SVG")
 }
 
 // Colors of the five main colors

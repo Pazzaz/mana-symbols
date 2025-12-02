@@ -34,6 +34,7 @@ mod mana;
 mod manas;
 mod single_mana;
 mod split_mana;
+mod symbols;
 
 pub use color::Color;
 pub(crate) use generic_mana::GenericMana;

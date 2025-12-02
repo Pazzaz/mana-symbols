@@ -56,3 +56,18 @@ fn colorless() {
 fn snow() {
     test_render("s.svg", "S");
 }
+
+#[test]
+fn zero() {
+    test_render("0.svg", "0");
+}
+
+#[test]
+fn twenty() {
+    test_render("20.svg", "20");
+}
+
+#[test]
+fn generic_hybrid() {
+    test_render("two_g.svg", "2/G");
+}

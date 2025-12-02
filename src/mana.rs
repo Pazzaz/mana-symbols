@@ -18,7 +18,11 @@ use svg::{
 
 use crate::{
     Color, GenericMana, SingleMana, SplitMana,
-    color::{HEX_C, parse_svg},
+    color::HEX_C,
+    symbols::{
+        color_symbol, colorless_symbol, number_symbol, phyrexian_symbol, snow_symbol, x_symbol,
+        y_symbol, z_symbol,
+    },
 };
 
 /// A mana symbol
@@ -150,23 +154,47 @@ impl Mana {
         document = match self {
             Mana::Single(SingleMana::Normal(color)) => {
                 document = with_circle(document, color.hex());
-                with_symbol(document, color.symbol())
+                with_symbol(document, color_symbol(*color))
             }
             Mana::Single(SingleMana::Phyrexian(color)) => with_circle(document, color.hex()),
-            Mana::Generic(_) => with_circle(document, HEX_C),
+            Mana::Generic(GenericMana::Number(n)) => {
+                document = with_circle(document, HEX_C);
+                if let Some(symbol) = number_symbol(*n) {
+                    with_symbol(document, symbol)
+                } else {
+                    document
+                }
+            }
+            Mana::Generic(GenericMana::X) => {
+                let document = with_circle(document, HEX_C);
+                with_symbol(document, x_symbol())
+            }
+            Mana::Generic(GenericMana::Y) => {
+                let document = with_circle(document, HEX_C);
+                with_symbol(document, y_symbol())
+            }
+            Mana::Generic(GenericMana::Z) => {
+                let document = with_circle(document, HEX_C);
+                with_symbol(document, z_symbol())
+            }
             Mana::Split(SplitMana::Colorless { color }) => {
                 document = with_split_circle(document, HEX_C, color.hex());
-                with_symbols(document, colorless_symbol(), color.symbol())
+                with_symbols(document, colorless_symbol(), color_symbol(*color))
             }
-            Mana::Split(SplitMana::Mono { color, .. }) => {
-                with_split_circle(document, HEX_C, color.hex())
+            Mana::Split(SplitMana::Mono { color, value }) => {
+                document = with_split_circle(document, HEX_C, color.hex());
+                if let Some(number) = number_symbol(*value) {
+                    with_symbols(document, number, color_symbol(*color))
+                } else {
+                    document
+                }
             }
             Mana::Split(SplitMana::Duo { a, b, phyrexian }) => {
                 document = with_split_circle(document, a.hex(), b.hex());
                 if *phyrexian {
                     with_symbols(document, phyrexian_symbol(), phyrexian_symbol())
                 } else {
-                    with_symbols(document, a.symbol(), b.symbol())
+                    with_symbols(document, color_symbol(*a), color_symbol(*b))
                 }
             }
             Mana::Colorless => {
@@ -181,21 +209,6 @@ impl Mana {
 
         document
     }
-}
-
-fn colorless_symbol() -> SVG {
-    let content = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/c.svg"));
-    parse_svg(content)
-}
-
-fn phyrexian_symbol() -> SVG {
-    let content = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/p.svg"));
-    parse_svg(content)
-}
-
-fn snow_symbol() -> SVG {
-    let content = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/s.svg"));
-    parse_svg(content)
 }
 
 #[must_use]
