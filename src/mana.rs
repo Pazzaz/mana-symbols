@@ -149,7 +149,7 @@ impl Mana {
     }
 
     pub fn as_svg(&self) -> SVG {
-        let mut document = Document::new().set("viewBox", (0, 0, 100, 100));
+        let mut document = Document::new().set("viewBox", (0, 0, 32, 32));
 
         document = match self {
             Mana::Single(SingleMana::Normal(color)) => {
@@ -213,9 +213,9 @@ impl Mana {
 
 #[must_use]
 fn with_symbol(document: SVG, symbol: SVG) -> SVG {
-    let width = 80.0;
-    let x_pos = 50.0;
-    let y_pos = 50.0;
+    let width = 26.0;
+    let x_pos = 16.0;
+    let y_pos = 16.0;
     let symbol = symbol
         .set("width", width)
         .set("height", width)
@@ -227,13 +227,13 @@ fn with_symbol(document: SVG, symbol: SVG) -> SVG {
 #[must_use]
 fn with_symbols(mut document: SVG, symbol_left: SVG, symbol_right: SVG) -> SVG {
     let pi = f64::consts::PI;
-    let x_right = f64::cos(pi / 4.0) * 25.0 + 50.0;
-    let y_right = f64::sin(pi / 4.0) * 25.0 + 50.0;
+    let x_right = f64::cos(pi / 4.0) * 8.0 + 16.0;
+    let y_right = f64::sin(pi / 4.0) * 8.0 + 16.0;
 
-    let x_left = f64::cos(pi / 4.0 + pi) * 25.0 + 50.0;
-    let y_left = f64::sin(pi / 4.0 + pi) * 25.0 + 50.0;
+    let x_left = f64::cos(pi / 4.0 + pi) * 8.0 + 16.0;
+    let y_left = f64::sin(pi / 4.0 + pi) * 8.0 + 16.0;
 
-    let width = 43.0;
+    let width = 14.0;
     let symbol = symbol_right
         .set("width", width)
         .set("height", width)
@@ -256,24 +256,24 @@ fn with_circle(document: SVG, fill: &str) -> SVG {
     let circle = Circle::new()
         .set("fill", fill)
         .set("stroke", "none")
-        .set("r", 50)
-        .set("cx", 50)
-        .set("cy", 50);
+        .set("r", 16)
+        .set("cx", 16)
+        .set("cy", 16);
     document.add(circle)
 }
 
 #[must_use]
 fn with_split_circle(mut document: SVG, fill_left: &str, fill_right: &str) -> SVG {
     let pi = f64::consts::PI;
-    let x_right = f64::cos(pi / 4.0) * 50.0 + 50.0;
-    let y_right = -f64::sin(pi / 4.0) * 50.0 + 50.0;
+    let x_right = f64::cos(pi / 4.0) * 16.0 + 16.0;
+    let y_right = -f64::sin(pi / 4.0) * 16.0 + 16.0;
 
-    let x_left = f64::cos(pi / 4.0 + pi) * 50.0 + 50.0;
-    let y_left = -f64::sin(pi / 4.0 + pi) * 50.0 + 50.0;
+    let x_left = f64::cos(pi / 4.0 + pi) * 16.0 + 16.0;
+    let y_left = -f64::sin(pi / 4.0 + pi) * 16.0 + 16.0;
 
     let data = Data::new()
         .move_to((x_right, y_right))
-        .elliptical_arc_to((50, 50, 0, 0, 1, x_left, y_left))
+        .elliptical_arc_to((16, 16, 0, 0, 1, x_left, y_left))
         .close();
 
     let path = Path::new().set("d", data).set("fill", fill_right);
@@ -281,7 +281,7 @@ fn with_split_circle(mut document: SVG, fill_left: &str, fill_right: &str) -> SV
 
     let data = Data::new()
         .move_to((x_right, y_right))
-        .elliptical_arc_to((50, 50, 0, 0, 0, x_left, y_left))
+        .elliptical_arc_to((16, 16, 0, 0, 0, x_left, y_left))
         .close();
 
     let path = Path::new().set("d", data).set("fill", fill_left);
