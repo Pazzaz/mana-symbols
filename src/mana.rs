@@ -4,6 +4,7 @@ use std::{
     str::FromStr,
 };
 
+use base64::{Engine, prelude::BASE64_STANDARD};
 use nom::{
     Finish, IResult, Parser,
     branch::alt,
@@ -208,6 +209,20 @@ impl Mana {
         };
 
         document
+    }
+
+    pub fn as_html(&self, include_css: bool) -> String {
+        let svg = self.as_svg();
+        let base64 = BASE64_STANDARD.encode(svg.to_string());
+        let css = if include_css {
+            r#" style="height: 1em; line-height: 1; width: 1em; vertical-align: middle""#
+        } else {
+            ""
+        };
+
+        format!(
+            r#"<img{css} alt="{{{self}}}" title="{{{self}}}" src="data:image/svg+xml;base64,{base64}">"#,
+        )
     }
 }
 
