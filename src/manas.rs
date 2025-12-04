@@ -171,12 +171,16 @@ impl Manas {
         Ok((rest, Self { manas: res }))
     }
 
+    /// Display the mana symbols as a [`String`] of [HTML](https://en.wikipedia.org/wiki/HTML), where
+    /// each image is an [SVG](https://en.wikipedia.org/wiki/HTML). See [`Mana::as_html`].
     pub fn as_html(&self, include_css: bool) -> String {
         let mut out = String::new();
         self.write_html(&mut out, include_css).unwrap();
         out
     }
 
+    /// Display the mana symbols as [HTML](https://en.wikipedia.org/wiki/HTML) written to `output`,
+    /// where each image is an [SVG](https://en.wikipedia.org/wiki/HTML). See [`Mana::write_html`].
     pub fn write_html<W: Write>(&self, output: &mut W, include_css: bool) -> std::fmt::Result {
         write!(output, r#"<span class="mana_symbols">"#)?;
 

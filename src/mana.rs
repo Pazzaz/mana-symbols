@@ -149,6 +149,7 @@ impl Mana {
         alt((brackets, Self::parse_inner)).parse(input)
     }
 
+    /// Display the mana symbol as an [SVG](https://en.wikipedia.org/wiki/SVG).
     pub fn as_svg(&self) -> SVG {
         let mut document = Document::new().set("viewBox", (0, 0, 32, 32));
 
@@ -214,12 +215,14 @@ impl Mana {
         document
     }
 
+    /// Display the mana symbol as a [`String`] of [HTML](https://en.wikipedia.org/wiki/HTML), where the image is an SVG (see [`Mana::as_svg`]).
     pub fn as_html(&self, include_css: bool) -> String {
         let mut out = String::new();
         self.write_html(&mut out, include_css).unwrap();
         out
     }
 
+    /// Display the mana symbol as [HTML](https://en.wikipedia.org/wiki/HTML) written to `output` (see [`Mana::as_html`]).
     pub fn write_html<W: Write>(&self, output: &mut W, include_css: bool) -> std::fmt::Result {
         let svg = self.as_svg();
         let base64 = BASE64_STANDARD.encode(svg.to_string());
