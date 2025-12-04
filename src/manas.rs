@@ -178,15 +178,10 @@ impl Manas {
     }
 
     pub fn write_html<W: Write>(&self, output: &mut W, include_css: bool) -> std::fmt::Result {
-        if include_css {
-            output.write_str(
-                "<style> img { height: 1.5em; width: 1.7em; vertical-align: middle }</style>",
-            )?;
-        }
         write!(output, r#"<span class="mana_symbols">"#)?;
 
         for mana in &self.manas {
-            mana.write_html(output, false)?;
+            mana.write_html(output, include_css)?;
         }
 
         write!(output, r#"</span>"#)
