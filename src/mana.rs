@@ -157,7 +157,10 @@ impl Mana {
                 document = with_circle(document, color.hex());
                 with_symbol(document, color_symbol(*color))
             }
-            Mana::Single(SingleMana::Phyrexian(color)) => with_circle(document, color.hex()),
+            Mana::Single(SingleMana::Phyrexian(color)) => {
+                let document = with_circle(document, color.hex());
+                with_symbol(document, phyrexian_symbol())
+            }
             Mana::Generic(GenericMana::Number(n)) => {
                 document = with_circle(document, HEX_C);
                 if let Some(symbol) = number_symbol(*n) {
