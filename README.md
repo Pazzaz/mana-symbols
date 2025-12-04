@@ -2,8 +2,8 @@
 This is a Rust crate to model [Mana costs][mw:mc] from [Magic the Gathering][wp:mtg] cards. It can parse text representations of mana (e.g. `{5}{U}{U/B}`), sort mana costs and calculate [mana values][mw:mv].
 
 <div align="center">
-
-<span class="mana_symbols"><img style="height: 1.5em; width: 1.7em; vertical-align: middle" alt="{5}" title="5 generic mana" src="snapshots/mana__5.snap.svg"><img style="height: 1.5em; width: 1.7em; vertical-align: middle" alt="{C}" title="Colorless mana" src="snapshots/mana__c.snap.svg"><img style="height: 1.5em; width: 1.7em; vertical-align: middle" alt="{U/P}" title="Phyrexian blue mana" src="snapshots/mana__u_p.snap.svg"><img style="height: 1.5em; width: 1.7em; vertical-align: middle" alt="{R/G/P}" title="Phyrexian hybrid mana: red or green" src="snapshots/mana__r_g_p.snap.svg"><img style="height: 1.5em; width: 1.7em; vertical-align: middle" alt="{S}" title="Snow mana" src="snapshots/mana__s.snap.svg"></span>
+<style> img { height: 1.5em; width: 1.7em; vertical-align: middle }</style>
+<span class="mana_symbols"><img alt="{5}" title="5 generic mana" src="snapshots/mana__5.snap.svg"><img alt="{C}" title="Colorless mana" src="snapshots/mana__c.snap.svg"><img alt="{U/P}" title="Phyrexian blue mana" src="snapshots/mana__u_p.snap.svg"><img alt="{R/G/P}" title="Phyrexian hybrid mana: red or green" src="snapshots/mana__r_g_p.snap.svg"><img alt="{S}" title="Snow mana" src="snapshots/mana__s.snap.svg"></span>
 
 </div>
 
