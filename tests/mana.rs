@@ -63,6 +63,11 @@ fn zero() {
 }
 
 #[test]
+fn five() {
+    test_render("5.svg", "5");
+}
+
+#[test]
 fn twenty() {
     test_render("20.svg", "20");
 }
@@ -70,4 +75,9 @@ fn twenty() {
 #[test]
 fn generic_hybrid() {
     test_render("two_g.svg", "2/G");
+}
+
+#[test]
+fn blue_phyrexian() {
+    test_render("u_p.svg", "U/P");
 }

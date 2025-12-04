@@ -69,6 +69,26 @@ impl Color {
             Color::Green => HEX_G,
         }
     }
+
+    pub(crate) fn name(&self) -> &'static str {
+        match self {
+            Color::White => "white",
+            Color::Blue => "blue",
+            Color::Black => "black",
+            Color::Red => "red",
+            Color::Green => "green",
+        }
+    }
+
+    pub(crate) fn name_capitalized(&self) -> &'static str {
+        match self {
+            Color::White => "White",
+            Color::Blue => "Blue",
+            Color::Black => "Black",
+            Color::Red => "Red",
+            Color::Green => "Green",
+        }
+    }
 }
 
 // Colors of the five main colors

@@ -224,15 +224,44 @@ impl Mana {
         let svg = self.as_svg();
         let base64 = BASE64_STANDARD.encode(svg.to_string());
         let css = if include_css {
-            r#" style="height: 1em; line-height: 1; width: 1em; vertical-align: middle""#
+            r#" style="height: 1.5em; width: 1.7em; vertical-align: middle""#
         } else {
             ""
         };
 
         write!(
             output,
-            r#"<img{css} alt="{{{self}}}" title="{{{self}}}" src="data:image/svg+xml;base64,{base64}">"#,
+            r#"<img{css} alt="{{{self}}}" title="{}" src="data:image/svg+xml;base64,{base64}">"#,
+            self.name()
         )
+    }
+
+    fn name(&self) -> String {
+        match self {
+            Mana::Single(SingleMana::Normal(color)) => format!("{} mana", color.name_capitalized()),
+            Mana::Single(SingleMana::Phyrexian(color)) => {
+                format!("Phyrexian {} mana", color.name())
+            }
+            Mana::Generic(GenericMana::Number(n)) => format!("{n} generic mana"),
+            Mana::Generic(GenericMana::X) => "X generic mana".to_string(),
+            Mana::Generic(GenericMana::Y) => "Y generic mana".to_string(),
+            Mana::Generic(GenericMana::Z) => "Z generic mana".to_string(),
+            Mana::Split(SplitMana::Mono { value, color }) => {
+                format!("Hybrid mana: {value} generic or {}", color.name())
+            }
+            Mana::Split(SplitMana::Duo { a, b, phyrexian }) => {
+                if *phyrexian {
+                    format!("Phyrexian hybrid mana: {} or {}", a.name(), b.name())
+                } else {
+                    format!("Hybrid mana: {} or {}", a.name(), b.name())
+                }
+            }
+            Mana::Split(SplitMana::Colorless { color }) => {
+                format!("Hybrid mana: colorless or {}", color.name())
+            }
+            Mana::Colorless => "Colorless mana".to_string(),
+            Mana::Snow => "Snow mana".to_string(),
+        }
     }
 }
 

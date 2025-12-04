@@ -1,4 +1,7 @@
-use std::{fmt::Display, str::FromStr};
+use std::{
+    fmt::{Display, Write},
+    str::FromStr,
+};
 
 use nom::{Finish, IResult, Parser, combinator::eof, multi::many0, sequence::terminated};
 
@@ -166,6 +169,22 @@ impl Manas {
     pub fn parse(input: &str) -> IResult<&str, Self> {
         let (rest, res) = many0(Mana::parse).parse(input)?;
         Ok((rest, Self { manas: res }))
+    }
+
+    pub fn as_html(&self, include_css: bool) -> String {
+        let mut out = String::new();
+        self.write_html(&mut out, include_css).unwrap();
+        out
+    }
+
+    pub fn write_html<W: Write>(&self, output: &mut W, include_css: bool) -> std::fmt::Result {
+        write!(output, r#"<span class="mana_symbols">"#)?;
+
+        for mana in &self.manas {
+            mana.write_html(output, include_css)?;
+        }
+
+        write!(output, r#"</span>"#)
     }
 }
 
