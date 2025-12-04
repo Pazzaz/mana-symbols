@@ -212,6 +212,12 @@ impl Mana {
     }
 
     pub fn as_html(&self, include_css: bool) -> String {
+        let mut out = String::new();
+        self.write_html(&mut out, include_css).unwrap();
+        out
+    }
+
+    pub fn write_html<W: Write>(&self, output: &mut W, include_css: bool) -> std::fmt::Result {
         let svg = self.as_svg();
         let base64 = BASE64_STANDARD.encode(svg.to_string());
         let css = if include_css {
@@ -220,7 +226,8 @@ impl Mana {
             ""
         };
 
-        format!(
+        write!(
+            output,
             r#"<img{css} alt="{{{self}}}" title="{{{self}}}" src="data:image/svg+xml;base64,{base64}">"#,
         )
     }
