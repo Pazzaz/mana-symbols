@@ -21,7 +21,13 @@ pub fn phyrexian_symbol() -> SVG {
 pub fn snow_symbol() -> SVG {
     let content = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/s.svg"));
     let document = Document::new().set("viewBox", (0, 0, 32, 32));
-    parse_add(content, document)
+    let mut paths = get_paths(content);
+    let mut inner_path = paths.next().unwrap();
+    let mut outline_path = paths.next().unwrap();
+    inner_path = inner_path.set("fill", "white");
+    outline_path = outline_path.set("fill", "black");
+
+    document.add(inner_path).add(outline_path)
 }
 
 pub fn color_symbol(color: Color) -> SVG {
@@ -85,16 +91,24 @@ pub fn z_symbol() -> SVG {
 }
 
 fn parse_add(content: &str, mut svg: SVG) -> SVG {
-    for event in svg::read(content).unwrap() {
+    for path in get_paths(content) {
+        svg = svg.add(path)
+    }
+
+    svg
+}
+
+fn get_paths(content: &str) -> impl Iterator<Item = Path> {
+    svg::read(content).unwrap().filter_map(|event| {
         if let Event::Tag("path", Type::Empty, attributes)
         | Event::Tag("path", Type::Start, attributes) = event
         {
             let data = attributes.get("d").unwrap();
             let data = Data::parse(data).unwrap();
             let path = Path::new().set("d", data);
-            svg = svg.add(path);
+            Some(path)
+        } else {
+            None
         }
-    }
-
-    svg
+    })
 }

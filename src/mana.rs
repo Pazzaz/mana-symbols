@@ -208,7 +208,7 @@ impl Mana {
             }
             Mana::Snow => {
                 document = with_circle(document, HEX_C);
-                with_symbol(document, snow_symbol(), 32.0, 0.8125)
+                with_symbol(document, snow_symbol(), 32.0, 1.0)
             }
         };
 
