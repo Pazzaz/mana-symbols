@@ -14,7 +14,7 @@ use nom::{
 };
 use svg::{
     Document,
-    node::element::{Circle, Path, SVG, path::Data},
+    node::element::{Circle, Group, Mask, Path, SVG, path::Data},
 };
 
 use crate::{
@@ -351,28 +351,37 @@ fn with_shadow(document: SVG, offset: f64) -> SVG {
 
 #[must_use]
 fn with_split_circle(mut document: SVG, fill_left: &str, fill_right: &str) -> SVG {
-    let pi = f64::consts::PI;
-    let x_right = f64::cos(pi / 4.0) * 16.0 + 16.0;
-    let y_right = -f64::sin(pi / 4.0) * 16.0 + 16.0;
+    let circle_mask = Circle::new()
+        .set("fill", "white")
+        .set("stroke", "none")
+        .set("r", SVG_WIDTH / 2.0)
+        .set("cx", SVG_WIDTH / 2.0)
+        .set("cy", SVG_WIDTH / 2.0);
+    let mask = Mask::new().set("id", "circle_mask").set("mask-type", "luminance").add(circle_mask);
 
-    let x_left = f64::cos(pi / 4.0 + pi) * 16.0 + 16.0;
-    let y_left = -f64::sin(pi / 4.0 + pi) * 16.0 + 16.0;
+    document = document.add(mask);
+
+    let mut group = Group::new().set("mask", "url(#circle_mask)");
 
     let data = Data::new()
-        .move_to((x_right, y_right))
-        .elliptical_arc_to((16, 16, 0, 0, 1, x_left, y_left))
+        .move_to((0.0, 0.0))
+        .horizontal_line_to(SVG_WIDTH)
+        .vertical_line_to(SVG_WIDTH)
+        .horizontal_line_to(0.0)
         .close();
 
     let path = Path::new().set("d", data).set("fill", fill_right);
-    document = document.add(path);
+    group = group.add(path);
 
     let data = Data::new()
-        .move_to((x_right, y_right))
-        .elliptical_arc_to((16, 16, 0, 0, 0, x_left, y_left))
+        .move_to((0.0, 0.0))
+        .horizontal_line_to(SVG_WIDTH)
+        .line_to((0.0, SVG_WIDTH))
         .close();
 
     let path = Path::new().set("d", data).set("fill", fill_left);
-    document.add(path)
+    group = group.add(path);
+    document.add(group)
 }
 
 #[cfg(test)]
