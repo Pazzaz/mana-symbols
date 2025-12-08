@@ -92,7 +92,7 @@ pub fn z_symbol() -> SVG {
 
 fn parse_add(content: &str, mut svg: SVG) -> SVG {
     for path in get_paths(content) {
-        svg = svg.add(path)
+        svg = svg.add(path);
     }
 
     svg
@@ -100,9 +100,7 @@ fn parse_add(content: &str, mut svg: SVG) -> SVG {
 
 fn get_paths(content: &str) -> impl Iterator<Item = Path> {
     svg::read(content).unwrap().filter_map(|event| {
-        if let Event::Tag("path", Type::Empty, attributes)
-        | Event::Tag("path", Type::Start, attributes) = event
-        {
+        if let Event::Tag("path", Type::Empty | Type::Start, attributes) = event {
             let data = attributes.get("d").unwrap();
             let data = Data::parse(data).unwrap();
             let path = Path::new().set("d", data);

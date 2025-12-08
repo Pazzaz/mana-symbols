@@ -173,6 +173,7 @@ impl Manas {
 
     /// Display the mana symbols as a [`String`] of [HTML](https://en.wikipedia.org/wiki/HTML), where
     /// each image is an [SVG](https://en.wikipedia.org/wiki/HTML). See [`Mana::as_html`].
+    #[must_use]
     pub fn as_html(&self, include_css: bool) -> String {
         let mut out = String::new();
         self.write_html(&mut out, include_css).unwrap();
@@ -188,7 +189,7 @@ impl Manas {
             mana.write_html(output, include_css)?;
         }
 
-        write!(output, r#"</span>"#)
+        write!(output, "</span>")
     }
 }
 

@@ -72,7 +72,7 @@ impl Color {
         }
     }
 
-    pub(crate) fn name(&self) -> &'static str {
+    pub(crate) fn name(self) -> &'static str {
         match self {
             Color::White => "white",
             Color::Blue => "blue",
@@ -82,7 +82,7 @@ impl Color {
         }
     }
 
-    pub(crate) fn name_capitalized(&self) -> &'static str {
+    pub(crate) fn name_capitalized(self) -> &'static str {
         match self {
             Color::White => "White",
             Color::Blue => "Blue",

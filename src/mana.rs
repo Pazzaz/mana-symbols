@@ -150,6 +150,7 @@ impl Mana {
     }
 
     /// Display the mana symbol as an [SVG](https://en.wikipedia.org/wiki/SVG).
+    #[must_use]
     pub fn as_svg(&self) -> SVG {
         let shadow_offset = 1.5;
         let mut document = Document::new().set(
@@ -227,6 +228,7 @@ impl Mana {
     }
 
     /// Display the mana symbol as a [`String`] of [HTML](https://en.wikipedia.org/wiki/HTML), where the image is an SVG (see [`Mana::as_svg`]).
+    #[must_use]
     pub fn as_html(&self, include_css: bool) -> String {
         let mut out = String::new();
         self.write_html(&mut out, include_css).unwrap();
