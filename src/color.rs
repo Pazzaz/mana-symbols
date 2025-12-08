@@ -64,31 +64,31 @@ impl Color {
     #[must_use]
     pub const fn hex(self) -> &'static str {
         match self {
-            Color::White => HEX_W,
-            Color::Blue => HEX_U,
-            Color::Black => HEX_B,
-            Color::Red => HEX_R,
-            Color::Green => HEX_G,
+            Self::White => HEX_W,
+            Self::Blue => HEX_U,
+            Self::Black => HEX_B,
+            Self::Red => HEX_R,
+            Self::Green => HEX_G,
         }
     }
 
-    pub(crate) fn name(self) -> &'static str {
+    pub(crate) const fn name(self) -> &'static str {
         match self {
-            Color::White => "white",
-            Color::Blue => "blue",
-            Color::Black => "black",
-            Color::Red => "red",
-            Color::Green => "green",
+            Self::White => "white",
+            Self::Blue => "blue",
+            Self::Black => "black",
+            Self::Red => "red",
+            Self::Green => "green",
         }
     }
 
-    pub(crate) fn name_capitalized(self) -> &'static str {
+    pub(crate) const fn name_capitalized(self) -> &'static str {
         match self {
-            Color::White => "White",
-            Color::Blue => "Blue",
-            Color::Black => "Black",
-            Color::Red => "Red",
-            Color::Green => "Green",
+            Self::White => "White",
+            Self::Blue => "Blue",
+            Self::Black => "Black",
+            Self::Red => "Red",
+            Self::Green => "Green",
         }
     }
 }

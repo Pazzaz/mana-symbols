@@ -158,23 +158,23 @@ impl Mana {
             (
                 -shadow_offset,
                 -shadow_offset,
-                SVG_WIDTH + 2.0 * shadow_offset,
-                SVG_WIDTH + 2.0 * shadow_offset,
+                2.0f64.mul_add(shadow_offset, SVG_WIDTH),
+                2.0f64.mul_add(shadow_offset, SVG_WIDTH),
             ),
         );
 
         document = with_shadow(document, shadow_offset);
 
         document = match self {
-            Mana::Single(SingleMana::Normal(color)) => {
+            Self::Single(SingleMana::Normal(color)) => {
                 document = with_circle(document, color.hex());
                 with_symbol(document, color_symbol(*color), SVG_WIDTH, 0.8125)
             }
-            Mana::Single(SingleMana::Phyrexian(color)) => {
+            Self::Single(SingleMana::Phyrexian(color)) => {
                 let document = with_circle(document, color.hex());
                 with_symbol(document, phyrexian_symbol(), SVG_WIDTH, 0.8125)
             }
-            Mana::Generic(GenericMana::Number(n)) => {
+            Self::Generic(GenericMana::Number(n)) => {
                 document = with_circle(document, HEX_C);
                 if let Some(symbol) = number_symbol(*n) {
                     with_symbol(document, symbol, SVG_WIDTH, 0.8125)
@@ -182,23 +182,23 @@ impl Mana {
                     document
                 }
             }
-            Mana::Generic(GenericMana::X) => {
+            Self::Generic(GenericMana::X) => {
                 let document = with_circle(document, HEX_C);
                 with_symbol(document, x_symbol(), SVG_WIDTH, 0.8125)
             }
-            Mana::Generic(GenericMana::Y) => {
+            Self::Generic(GenericMana::Y) => {
                 let document = with_circle(document, HEX_C);
                 with_symbol(document, y_symbol(), SVG_WIDTH, 0.8125)
             }
-            Mana::Generic(GenericMana::Z) => {
+            Self::Generic(GenericMana::Z) => {
                 let document = with_circle(document, HEX_C);
                 with_symbol(document, z_symbol(), SVG_WIDTH, 0.8125)
             }
-            Mana::Split(SplitMana::Colorless { color }) => {
+            Self::Split(SplitMana::Colorless { color }) => {
                 document = with_split_circle(document, HEX_C, color.hex());
                 with_symbols(document, colorless_symbol(), color_symbol(*color), SVG_WIDTH, 0.875)
             }
-            Mana::Split(SplitMana::Mono { color, value }) => {
+            Self::Split(SplitMana::Mono { color, value }) => {
                 document = with_split_circle(document, HEX_C, color.hex());
                 if let Some(number) = number_symbol(*value) {
                     with_symbols(document, number, color_symbol(*color), SVG_WIDTH, 0.875)
@@ -206,7 +206,7 @@ impl Mana {
                     document
                 }
             }
-            Mana::Split(SplitMana::Duo { a, b, phyrexian }) => {
+            Self::Split(SplitMana::Duo { a, b, phyrexian }) => {
                 document = with_split_circle(document, a.hex(), b.hex());
                 if *phyrexian {
                     with_symbols(document, phyrexian_symbol(), phyrexian_symbol(), SVG_WIDTH, 0.875)
@@ -214,11 +214,11 @@ impl Mana {
                     with_symbols(document, color_symbol(*a), color_symbol(*b), SVG_WIDTH, 0.875)
                 }
             }
-            Mana::Colorless => {
+            Self::Colorless => {
                 document = with_circle(document, HEX_C);
                 with_symbol(document, colorless_symbol(), SVG_WIDTH, 0.8125)
             }
-            Mana::Snow => {
+            Self::Snow => {
                 document = with_circle(document, HEX_C);
                 with_symbol(document, snow_symbol(), SVG_WIDTH, 1.0)
             }
@@ -254,29 +254,29 @@ impl Mana {
 
     fn name(&self) -> String {
         match self {
-            Mana::Single(SingleMana::Normal(color)) => format!("{} mana", color.name_capitalized()),
-            Mana::Single(SingleMana::Phyrexian(color)) => {
+            Self::Single(SingleMana::Normal(color)) => format!("{} mana", color.name_capitalized()),
+            Self::Single(SingleMana::Phyrexian(color)) => {
                 format!("Phyrexian {} mana", color.name())
             }
-            Mana::Generic(GenericMana::Number(n)) => format!("{n} generic mana"),
-            Mana::Generic(GenericMana::X) => "X generic mana".to_string(),
-            Mana::Generic(GenericMana::Y) => "Y generic mana".to_string(),
-            Mana::Generic(GenericMana::Z) => "Z generic mana".to_string(),
-            Mana::Split(SplitMana::Mono { value, color }) => {
+            Self::Generic(GenericMana::Number(n)) => format!("{n} generic mana"),
+            Self::Generic(GenericMana::X) => "X generic mana".to_string(),
+            Self::Generic(GenericMana::Y) => "Y generic mana".to_string(),
+            Self::Generic(GenericMana::Z) => "Z generic mana".to_string(),
+            Self::Split(SplitMana::Mono { value, color }) => {
                 format!("Hybrid mana: {value} generic or {}", color.name())
             }
-            Mana::Split(SplitMana::Duo { a, b, phyrexian }) => {
+            Self::Split(SplitMana::Duo { a, b, phyrexian }) => {
                 if *phyrexian {
                     format!("Phyrexian hybrid mana: {} or {}", a.name(), b.name())
                 } else {
                     format!("Hybrid mana: {} or {}", a.name(), b.name())
                 }
             }
-            Mana::Split(SplitMana::Colorless { color }) => {
+            Self::Split(SplitMana::Colorless { color }) => {
                 format!("Hybrid mana: colorless or {}", color.name())
             }
-            Mana::Colorless => "Colorless mana".to_string(),
-            Mana::Snow => "Snow mana".to_string(),
+            Self::Colorless => "Colorless mana".to_string(),
+            Self::Snow => "Snow mana".to_string(),
         }
     }
 }
