@@ -4,23 +4,23 @@ use svg::{
     parser::Event,
 };
 
-use crate::Color;
+use crate::{Color, SVG_WIDTH};
 
 pub fn colorless_symbol() -> SVG {
     let content = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/c.svg"));
-    let document = Document::new().set("viewBox", (0, 0, 32, 32));
+    let document = Document::new().set("viewBox", (0, 0, SVG_WIDTH, SVG_WIDTH));
     parse_add(content, document)
 }
 
 pub fn phyrexian_symbol() -> SVG {
     let content = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/p.svg"));
-    let document = Document::new().set("viewBox", (0, 0, 32, 32));
+    let document = Document::new().set("viewBox", (0, 0, SVG_WIDTH, SVG_WIDTH));
     parse_add(content, document)
 }
 
 pub fn snow_symbol() -> SVG {
     let content = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/s.svg"));
-    let document = Document::new().set("viewBox", (0, 0, 32, 32));
+    let document = Document::new().set("viewBox", (0, 0, SVG_WIDTH, SVG_WIDTH));
     let mut paths = get_paths(content);
     let mut inner_path = paths.next().unwrap();
     let mut outline_path = paths.next().unwrap();
@@ -38,7 +38,7 @@ pub fn color_symbol(color: Color) -> SVG {
         Color::Red => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/r.svg")),
         Color::Green => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/g.svg")),
     };
-    let document = Document::new().set("viewBox", (0, 0, 32, 32));
+    let document = Document::new().set("viewBox", (0, 0, SVG_WIDTH, SVG_WIDTH));
     parse_add(content, document)
 }
 
@@ -68,25 +68,25 @@ pub fn number_symbol(n: usize) -> Option<SVG> {
         20 => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/numbers/20.svg")),
         _ => return None,
     };
-    let document = Document::new().set("viewBox", (0, 0, 32, 32));
+    let document = Document::new().set("viewBox", (0, 0, SVG_WIDTH, SVG_WIDTH));
     Some(parse_add(content, document))
 }
 
 pub fn x_symbol() -> SVG {
     let content = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/x.svg"));
-    let document = Document::new().set("viewBox", (0, 0, 32, 32));
+    let document = Document::new().set("viewBox", (0, 0, SVG_WIDTH, SVG_WIDTH));
     parse_add(content, document)
 }
 
 pub fn y_symbol() -> SVG {
     let content = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/y.svg"));
-    let document = Document::new().set("viewBox", (0, 0, 32, 32));
+    let document = Document::new().set("viewBox", (0, 0, SVG_WIDTH, SVG_WIDTH));
     parse_add(content, document)
 }
 
 pub fn z_symbol() -> SVG {
     let content = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/symbols/z.svg"));
-    let document = Document::new().set("viewBox", (0, 0, 32, 32));
+    let document = Document::new().set("viewBox", (0, 0, SVG_WIDTH, SVG_WIDTH));
     parse_add(content, document)
 }
 

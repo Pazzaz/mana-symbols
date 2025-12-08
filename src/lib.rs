@@ -42,3 +42,6 @@ pub use mana::Mana;
 pub use manas::Manas;
 pub(crate) use single_mana::SingleMana;
 pub(crate) use split_mana::SplitMana;
+
+/// Each SVG is defined using coordinates in [0, 32.0]^2
+const SVG_WIDTH: f64 = 32.0;

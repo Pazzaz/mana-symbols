@@ -18,7 +18,7 @@ use svg::{
 };
 
 use crate::{
-    Color, GenericMana, SingleMana, SplitMana,
+    Color, GenericMana, SVG_WIDTH, SingleMana, SplitMana,
     color::HEX_C,
     symbols::{
         color_symbol, colorless_symbol, number_symbol, phyrexian_symbol, snow_symbol, x_symbol,
@@ -151,45 +151,45 @@ impl Mana {
 
     /// Display the mana symbol as an [SVG](https://en.wikipedia.org/wiki/SVG).
     pub fn as_svg(&self) -> SVG {
-        let mut document = Document::new().set("viewBox", (0, 0, 32, 32));
+        let mut document = Document::new().set("viewBox", (0, 0, SVG_WIDTH, SVG_WIDTH));
 
         document = match self {
             Mana::Single(SingleMana::Normal(color)) => {
                 document = with_circle(document, color.hex());
-                with_symbol(document, color_symbol(*color), 32.0, 0.8125)
+                with_symbol(document, color_symbol(*color), SVG_WIDTH, 0.8125)
             }
             Mana::Single(SingleMana::Phyrexian(color)) => {
                 let document = with_circle(document, color.hex());
-                with_symbol(document, phyrexian_symbol(), 32.0, 0.8125)
+                with_symbol(document, phyrexian_symbol(), SVG_WIDTH, 0.8125)
             }
             Mana::Generic(GenericMana::Number(n)) => {
                 document = with_circle(document, HEX_C);
                 if let Some(symbol) = number_symbol(*n) {
-                    with_symbol(document, symbol, 32.0, 0.8125)
+                    with_symbol(document, symbol, SVG_WIDTH, 0.8125)
                 } else {
                     document
                 }
             }
             Mana::Generic(GenericMana::X) => {
                 let document = with_circle(document, HEX_C);
-                with_symbol(document, x_symbol(), 32.0, 0.8125)
+                with_symbol(document, x_symbol(), SVG_WIDTH, 0.8125)
             }
             Mana::Generic(GenericMana::Y) => {
                 let document = with_circle(document, HEX_C);
-                with_symbol(document, y_symbol(), 32.0, 0.8125)
+                with_symbol(document, y_symbol(), SVG_WIDTH, 0.8125)
             }
             Mana::Generic(GenericMana::Z) => {
                 let document = with_circle(document, HEX_C);
-                with_symbol(document, z_symbol(), 32.0, 0.8125)
+                with_symbol(document, z_symbol(), SVG_WIDTH, 0.8125)
             }
             Mana::Split(SplitMana::Colorless { color }) => {
                 document = with_split_circle(document, HEX_C, color.hex());
-                with_symbols(document, colorless_symbol(), color_symbol(*color), 32.0, 0.875)
+                with_symbols(document, colorless_symbol(), color_symbol(*color), SVG_WIDTH, 0.875)
             }
             Mana::Split(SplitMana::Mono { color, value }) => {
                 document = with_split_circle(document, HEX_C, color.hex());
                 if let Some(number) = number_symbol(*value) {
-                    with_symbols(document, number, color_symbol(*color), 32.0, 0.875)
+                    with_symbols(document, number, color_symbol(*color), SVG_WIDTH, 0.875)
                 } else {
                     document
                 }
@@ -197,18 +197,18 @@ impl Mana {
             Mana::Split(SplitMana::Duo { a, b, phyrexian }) => {
                 document = with_split_circle(document, a.hex(), b.hex());
                 if *phyrexian {
-                    with_symbols(document, phyrexian_symbol(), phyrexian_symbol(), 32.0, 0.875)
+                    with_symbols(document, phyrexian_symbol(), phyrexian_symbol(), SVG_WIDTH, 0.875)
                 } else {
-                    with_symbols(document, color_symbol(*a), color_symbol(*b), 32.0, 0.875)
+                    with_symbols(document, color_symbol(*a), color_symbol(*b), SVG_WIDTH, 0.875)
                 }
             }
             Mana::Colorless => {
                 document = with_circle(document, HEX_C);
-                with_symbol(document, colorless_symbol(), 32.0, 0.8125)
+                with_symbol(document, colorless_symbol(), SVG_WIDTH, 0.8125)
             }
             Mana::Snow => {
                 document = with_circle(document, HEX_C);
-                with_symbol(document, snow_symbol(), 32.0, 1.0)
+                with_symbol(document, snow_symbol(), SVG_WIDTH, 1.0)
             }
         };
 
