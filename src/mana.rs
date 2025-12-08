@@ -151,7 +151,18 @@ impl Mana {
 
     /// Display the mana symbol as an [SVG](https://en.wikipedia.org/wiki/SVG).
     pub fn as_svg(&self) -> SVG {
-        let mut document = Document::new().set("viewBox", (0, 0, SVG_WIDTH, SVG_WIDTH));
+        let shadow_offset = 1.5;
+        let mut document = Document::new().set(
+            "viewBox",
+            (
+                -shadow_offset,
+                -shadow_offset,
+                SVG_WIDTH + 2.0 * shadow_offset,
+                SVG_WIDTH + 2.0 * shadow_offset,
+            ),
+        );
+
+        document = with_shadow(document, shadow_offset);
 
         document = match self {
             Mana::Single(SingleMana::Normal(color)) => {
@@ -319,9 +330,20 @@ fn with_circle(document: SVG, fill: &str) -> SVG {
     let circle = Circle::new()
         .set("fill", fill)
         .set("stroke", "none")
-        .set("r", 16)
-        .set("cx", 16)
-        .set("cy", 16);
+        .set("r", SVG_WIDTH / 2.0)
+        .set("cx", SVG_WIDTH / 2.0)
+        .set("cy", SVG_WIDTH / 2.0);
+    document.add(circle)
+}
+
+#[must_use]
+fn with_shadow(document: SVG, offset: f64) -> SVG {
+    let circle = Circle::new()
+        .set("fill", "black")
+        .set("stroke", "none")
+        .set("r", SVG_WIDTH / 2.0)
+        .set("cx", SVG_WIDTH / 2.0 - offset)
+        .set("cy", SVG_WIDTH / 2.0 + offset);
     document.add(circle)
 }
 
