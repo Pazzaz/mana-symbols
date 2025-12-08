@@ -22,13 +22,7 @@ pub const ALL_COLORS: [Color; 5] =
 
 impl Display for Color {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::White => f.write_char('W'),
-            Self::Blue => f.write_char('U'),
-            Self::Black => f.write_char('B'),
-            Self::Red => f.write_char('R'),
-            Self::Green => f.write_char('G'),
-        }
+        f.write_char(self.char())
     }
 }
 
@@ -45,18 +39,26 @@ impl Color {
         }
     }
 
+    /// The letter representing each color. `White -> W`, `Blue -> U`, etc.
+    #[must_use]
+    pub const fn char(self) -> char {
+        match self {
+            Self::White => 'W',
+            Self::Blue => 'U',
+            Self::Black => 'B',
+            Self::Red => 'R',
+            Self::Green => 'G',
+        }
+    }
+
     #[must_use]
     pub(crate) const fn next(self, i: usize) -> Self {
         Self::from_usize((self as usize).wrapping_add(i))
     }
 
     pub(crate) fn parse(input: &str) -> IResult<&str, Self> {
-        let w = value(Self::White, char('W'));
-        let u = value(Self::Blue, char('U'));
-        let b = value(Self::Black, char('B'));
-        let r = value(Self::Red, char('R'));
-        let g = value(Self::Green, char('G'));
-        alt((w, u, b, r, g)).parse(input)
+        let parsers = ALL_COLORS.map(|c| value(c, char(c.char())));
+        alt(parsers).parse(input)
     }
 
     #[must_use]
