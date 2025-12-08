@@ -168,40 +168,40 @@ impl Mana {
         document = match self {
             Self::Single(SingleMana::Normal(color)) => {
                 document = with_circle(document, color.hex());
-                with_symbol(document, color_symbol(*color), SVG_WIDTH, 0.8125)
+                with_symbol(document, color_symbol(*color), 0.8125)
             }
             Self::Single(SingleMana::Phyrexian(color)) => {
                 let document = with_circle(document, color.hex());
-                with_symbol(document, phyrexian_symbol(), SVG_WIDTH, 0.8125)
+                with_symbol(document, phyrexian_symbol(), 0.8125)
             }
             Self::Generic(GenericMana::Number(n)) => {
                 document = with_circle(document, HEX_C);
                 if let Some(symbol) = number_symbol(*n) {
-                    with_symbol(document, symbol, SVG_WIDTH, 0.70)
+                    with_symbol(document, symbol, 0.70)
                 } else {
                     document
                 }
             }
             Self::Generic(GenericMana::X) => {
                 let document = with_circle(document, HEX_C);
-                with_symbol(document, x_symbol(), SVG_WIDTH, 0.8125)
+                with_symbol(document, x_symbol(), 0.8125)
             }
             Self::Generic(GenericMana::Y) => {
                 let document = with_circle(document, HEX_C);
-                with_symbol(document, y_symbol(), SVG_WIDTH, 0.8125)
+                with_symbol(document, y_symbol(), 0.8125)
             }
             Self::Generic(GenericMana::Z) => {
                 let document = with_circle(document, HEX_C);
-                with_symbol(document, z_symbol(), SVG_WIDTH, 0.8125)
+                with_symbol(document, z_symbol(), 0.8125)
             }
             Self::Split(SplitMana::Colorless { color }) => {
                 document = with_split_circle(document, HEX_C, color.hex());
-                with_symbols(document, colorless_symbol(), color_symbol(*color), SVG_WIDTH, 0.875)
+                with_symbols(document, colorless_symbol(), color_symbol(*color), 0.875)
             }
             Self::Split(SplitMana::Mono { color, value }) => {
                 document = with_split_circle(document, HEX_C, color.hex());
                 if let Some(number) = number_symbol(*value) {
-                    with_symbols(document, number, color_symbol(*color), SVG_WIDTH, 0.875)
+                    with_symbols(document, number, color_symbol(*color), 0.875)
                 } else {
                     document
                 }
@@ -209,18 +209,18 @@ impl Mana {
             Self::Split(SplitMana::Duo { a, b, phyrexian }) => {
                 document = with_split_circle(document, a.hex(), b.hex());
                 if *phyrexian {
-                    with_symbols(document, phyrexian_symbol(), phyrexian_symbol(), SVG_WIDTH, 0.875)
+                    with_symbols(document, phyrexian_symbol(), phyrexian_symbol(), 0.875)
                 } else {
-                    with_symbols(document, color_symbol(*a), color_symbol(*b), SVG_WIDTH, 0.875)
+                    with_symbols(document, color_symbol(*a), color_symbol(*b), 0.875)
                 }
             }
             Self::Colorless => {
                 document = with_circle(document, HEX_C);
-                with_symbol(document, colorless_symbol(), SVG_WIDTH, 0.8125)
+                with_symbol(document, colorless_symbol(), 0.8125)
             }
             Self::Snow => {
                 document = with_circle(document, HEX_C);
-                with_symbol(document, snow_symbol(), SVG_WIDTH, 1.0)
+                with_symbol(document, snow_symbol(), 1.0)
             }
         };
 
@@ -282,10 +282,10 @@ impl Mana {
 }
 
 #[must_use]
-fn with_symbol(document: SVG, symbol: SVG, width: f64, size: f64) -> SVG {
-    let symbol_width = width * size;
-    let x_pos = width / 2.0;
-    let y_pos = width / 2.0;
+fn with_symbol(document: SVG, symbol: SVG, size: f64) -> SVG {
+    let symbol_width = SVG_WIDTH * size;
+    let x_pos = SVG_WIDTH / 2.0;
+    let y_pos = SVG_WIDTH / 2.0;
     let symbol = symbol
         .set("width", symbol_width)
         .set("height", symbol_width)
@@ -295,21 +295,15 @@ fn with_symbol(document: SVG, symbol: SVG, width: f64, size: f64) -> SVG {
 }
 
 #[must_use]
-fn with_symbols(
-    mut document: SVG,
-    symbol_left: SVG,
-    symbol_right: SVG,
-    width: f64,
-    size: f64,
-) -> SVG {
+fn with_symbols(mut document: SVG, symbol_left: SVG, symbol_right: SVG, size: f64) -> SVG {
     let pi = f64::consts::PI;
-    let x_right = f64::cos(pi / 4.0) * (width / 4.0) + (width / 2.0);
-    let y_right = f64::sin(pi / 4.0) * (width / 4.0) + (width / 2.0);
+    let x_right = f64::cos(pi / 4.0) * (SVG_WIDTH / 4.0) + (SVG_WIDTH / 2.0);
+    let y_right = f64::sin(pi / 4.0) * (SVG_WIDTH / 4.0) + (SVG_WIDTH / 2.0);
 
-    let x_left = f64::cos(pi / 4.0 + pi) * (width / 4.0) + (width / 2.0);
-    let y_left = f64::sin(pi / 4.0 + pi) * (width / 4.0) + (width / 2.0);
+    let x_left = f64::cos(pi / 4.0 + pi) * (SVG_WIDTH / 4.0) + (SVG_WIDTH / 2.0);
+    let y_left = f64::sin(pi / 4.0 + pi) * (SVG_WIDTH / 4.0) + (SVG_WIDTH / 2.0);
 
-    let symbol_width = (width / 2.0) * size;
+    let symbol_width = (SVG_WIDTH / 2.0) * size;
     let symbol = symbol_right
         .set("width", symbol_width)
         .set("height", symbol_width)
