@@ -177,7 +177,7 @@ impl Mana {
             Self::Generic(GenericMana::Number(n)) => {
                 document = with_circle(document, HEX_C);
                 if let Some(symbol) = number_symbol(*n) {
-                    with_symbol(document, symbol, SVG_WIDTH, 0.8125)
+                    with_symbol(document, symbol, SVG_WIDTH, 0.70)
                 } else {
                     document
                 }
