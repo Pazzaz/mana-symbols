@@ -4,8 +4,9 @@ use std::{
 };
 
 use nom::{Finish, IResult, Parser, combinator::eof, multi::many0, sequence::terminated};
+use svg::{Document, node::element::SVG};
 
-use crate::{Color, GenericMana, Mana, SingleMana, SplitMana, color_set::ColorSet};
+use crate::{Color, GenericMana, Mana, SVG_WIDTH, SingleMana, SplitMana, color_set::ColorSet};
 
 /// Collection of mana symbols
 ///
@@ -169,6 +170,34 @@ impl Manas {
     pub fn parse(input: &str) -> IResult<&str, Self> {
         let (rest, res) = many0(Mana::parse).parse(input)?;
         Ok((rest, Self { manas: res }))
+    }
+
+    /// Display the mana symbols as an [SVG](https://en.wikipedia.org/wiki/SVG). See [`Mana::as_svg`].
+    #[must_use]
+    pub fn as_svg(&self) -> SVG {
+        let n = self.manas.len();
+        if n == 0 {
+            return Document::new();
+        }
+
+        let shadow_offset = 1.5;
+        let width_single = 2.0f64.mul_add(shadow_offset, SVG_WIDTH);
+        let width_total = width_single * (n as f64);
+
+        let mut document = Document::new()
+            .set("viewBox", (-shadow_offset, -shadow_offset, width_total, width_single));
+
+        for (i, mana) in self.manas.iter().enumerate() {
+            let mana_svg = mana
+                .as_svg()
+                .set("x", width_single * (i as f64) - shadow_offset)
+                .set("y", -shadow_offset)
+                .set("width", width_single)
+                .set("height", width_single);
+            document = document.add(mana_svg);
+        }
+
+        document
     }
 
     /// Display the mana symbols as a [`String`] of [HTML](https://en.wikipedia.org/wiki/HTML), where

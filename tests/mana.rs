@@ -1,4 +1,4 @@
-use mana_symbols::Mana;
+use mana_symbols::{Mana, Manas};
 use svg::node::element::SVG;
 
 fn compare_snapshot(name: &str, svg: SVG) {
@@ -22,6 +22,13 @@ fn compare_snapshot(name: &str, svg: SVG) {
 
 pub fn test_render(name: &str, symbol: &str) {
     let m: Mana = symbol.parse().unwrap();
+
+    let svg = m.as_svg();
+    compare_snapshot(name, svg);
+}
+
+pub fn test_render_manas(name: &str, symbol: &str) {
+    let m: Manas = symbol.parse().unwrap();
 
     let svg = m.as_svg();
     compare_snapshot(name, svg);
@@ -80,4 +87,17 @@ fn generic_hybrid() {
 #[test]
 fn blue_phyrexian() {
     test_render("u_p.svg", "U/P");
+}
+
+#[test]
+fn two_manas() {
+    test_render_manas("two_manas.svg", "{U}{B}");
+}
+
+#[test]
+fn numbers() {
+    test_render_manas(
+        "numbers.svg",
+        "{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}{12}{13}{14}{15}{16}{17}{18}{19}{20}",
+    );
 }
