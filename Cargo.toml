@@ -2,7 +2,7 @@
 name = "mana-symbols"
 description = "Magic the Gathering mana symbols"
 authors = ["Pazzaz <pazzaz.sundqvist@gmail.com>"]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/Pazzaz/mana-symbols"
