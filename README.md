@@ -20,6 +20,15 @@ The types of mana supported by this library are:
 ## Sorting
 When sorting mana symbols in mana costs, this library uses an algorithm proposed by [`/u/Mean-Government1436`][reddit:user] in [a post on /r/custommagic][reddit:post]. The developers of Magic the Gathering, [Wizards of the Coast][wp:wotc], have not given any official algorithm for sorting of mana symbols.
 
+
+<small>
+
+```
+Graphical images used in this library, including mana symbols, is copyright Wizards of the Coast, LLC. This library is not produced by or endorsed by Wizards of the Coast.
+```
+
+</small>
+
 [mw:mc]:  https://mtg.wiki/page/Mana_cost
 [mw:mv]:  https://mtg.wiki/page/Mana_value
 [mw:gm]:  https://mtg.wiki/page/Generic_mana
