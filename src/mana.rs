@@ -18,7 +18,7 @@ use svg::{
 };
 
 use crate::{
-    Color, GenericMana, SVG_WIDTH, SingleMana, SplitMana,
+    Color, GenericMana, SVG_WIDTH, SVGConfig, SingleMana, SplitMana,
     color::HEX_C,
     symbols::{
         color_symbol, colorless_symbol, number_symbol, phyrexian_symbol, snow_symbol, x_symbol,
@@ -151,8 +151,8 @@ impl Mana {
 
     /// Display the mana symbol as an [SVG](https://en.wikipedia.org/wiki/SVG).
     #[must_use]
-    pub fn as_svg(&self) -> SVG {
-        let shadow_offset = 1.5;
+    pub fn as_svg(&self, config: &SVGConfig) -> SVG {
+        let shadow_offset = config.shadow_offset;
         let mut document = Document::new().set(
             "viewBox",
             (
@@ -162,8 +162,9 @@ impl Mana {
                 2.0f64.mul_add(shadow_offset, SVG_WIDTH),
             ),
         );
-
-        document = with_shadow(document, shadow_offset);
+        if config.shadow {
+            document = with_shadow(document, shadow_offset);
+        }
 
         document = match self {
             Self::Single(SingleMana::Normal(color)) => {
@@ -229,15 +230,20 @@ impl Mana {
 
     /// Display the mana symbol as a [`String`] of [HTML](https://en.wikipedia.org/wiki/HTML), where the image is an SVG (see [`Mana::as_svg`]).
     #[must_use]
-    pub fn as_html(&self, include_css: bool) -> String {
+    pub fn as_html(&self, include_css: bool, config: &SVGConfig) -> String {
         let mut out = String::new();
-        self.write_html(&mut out, include_css).unwrap();
+        self.write_html(&mut out, include_css, config).unwrap();
         out
     }
 
     /// Display the mana symbol as [HTML](https://en.wikipedia.org/wiki/HTML) written to `output` (see [`Mana::as_html`]).
-    pub fn write_html<W: Write>(&self, output: &mut W, include_css: bool) -> std::fmt::Result {
-        let svg = self.as_svg();
+    pub fn write_html<W: Write>(
+        &self,
+        output: &mut W,
+        include_css: bool,
+        config: &SVGConfig,
+    ) -> std::fmt::Result {
+        let svg = self.as_svg(config);
         let base64 = BASE64_STANDARD.encode(svg.to_string());
         let css = if include_css {
             r#" style="height: 1.5em; width: 1.7em; vertical-align: middle""#

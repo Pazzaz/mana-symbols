@@ -1,4 +1,4 @@
-use mana_symbols::{Mana, Manas};
+use mana_symbols::{Mana, Manas, SVGConfig};
 use svg::node::element::SVG;
 
 fn compare_snapshot(name: &str, svg: SVG) {
@@ -23,20 +23,34 @@ fn compare_snapshot(name: &str, svg: SVG) {
 pub fn test_render(name: &str, symbol: &str) {
     let m: Mana = symbol.parse().unwrap();
 
-    let svg = m.as_svg();
+    let svg = m.as_svg(&SVGConfig::default());
+    compare_snapshot(name, svg);
+}
+
+pub fn test_render_no_shadow(name: &str, symbol: &str) {
+    let m: Mana = symbol.parse().unwrap();
+    let mut config = SVGConfig::default();
+    config.shadow = false;
+
+    let svg = m.as_svg(&config);
     compare_snapshot(name, svg);
 }
 
 pub fn test_render_manas(name: &str, symbol: &str) {
     let m: Manas = symbol.parse().unwrap();
 
-    let svg = m.as_svg();
+    let svg = m.as_svg(&SVGConfig::default());
     compare_snapshot(name, svg);
 }
 
 #[test]
 fn blue() {
     test_render("u.svg", "U");
+}
+
+#[test]
+fn blue_no_shadow() {
+    test_render_no_shadow("u_no.svg", "U");
 }
 
 #[test]

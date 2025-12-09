@@ -6,7 +6,9 @@ use std::{
 use nom::{Finish, IResult, Parser, combinator::eof, multi::many0, sequence::terminated};
 use svg::{Document, node::element::SVG};
 
-use crate::{Color, GenericMana, Mana, SVG_WIDTH, SingleMana, SplitMana, color_set::ColorSet};
+use crate::{
+    Color, GenericMana, Mana, SVG_WIDTH, SVGConfig, SingleMana, SplitMana, color_set::ColorSet,
+};
 
 /// Collection of mana symbols
 ///
@@ -174,7 +176,7 @@ impl Manas {
 
     /// Display the mana symbols as an [SVG](https://en.wikipedia.org/wiki/SVG). See [`Mana::as_svg`].
     #[must_use]
-    pub fn as_svg(&self) -> SVG {
+    pub fn as_svg(&self, config: &SVGConfig) -> SVG {
         let n = self.manas.len();
         if n == 0 {
             return Document::new();
@@ -189,7 +191,7 @@ impl Manas {
 
         for (i, mana) in self.manas.iter().enumerate() {
             let mana_svg = mana
-                .as_svg()
+                .as_svg(config)
                 .set("x", width_single * (i as f64) - shadow_offset)
                 .set("y", -shadow_offset)
                 .set("width", width_single)
@@ -203,19 +205,24 @@ impl Manas {
     /// Display the mana symbols as a [`String`] of [HTML](https://en.wikipedia.org/wiki/HTML), where
     /// each image is an [SVG](https://en.wikipedia.org/wiki/HTML). See [`Mana::as_html`].
     #[must_use]
-    pub fn as_html(&self, include_css: bool) -> String {
+    pub fn as_html(&self, include_css: bool, config: &SVGConfig) -> String {
         let mut out = String::new();
-        self.write_html(&mut out, include_css).unwrap();
+        self.write_html(&mut out, include_css, config).unwrap();
         out
     }
 
     /// Display the mana symbols as [HTML](https://en.wikipedia.org/wiki/HTML) written to `output`,
     /// where each image is an [SVG](https://en.wikipedia.org/wiki/HTML). See [`Mana::write_html`].
-    pub fn write_html<W: Write>(&self, output: &mut W, include_css: bool) -> std::fmt::Result {
+    pub fn write_html<W: Write>(
+        &self,
+        output: &mut W,
+        include_css: bool,
+        config: &SVGConfig,
+    ) -> std::fmt::Result {
         write!(output, r#"<span class="mana_symbols">"#)?;
 
         for mana in &self.manas {
-            mana.write_html(output, include_css)?;
+            mana.write_html(output, include_css, config)?;
         }
 
         write!(output, "</span>")
