@@ -65,6 +65,18 @@ impl FromStr for Manas {
 }
 
 impl Manas {
+    /// Create a new `Manas` from a `Vec` of [`Mana`].    
+    #[must_use]
+    pub fn from_vec(v: Vec<Mana>) -> Self {
+        Self { manas: v }
+    }
+
+    /// Create a `Vec` of [`Mana`] from `Manas`.
+    #[must_use]
+    pub fn to_vec(self) -> Vec<Mana> {
+        self.manas
+    }
+
     /// The total [mana value](https://mtg.wiki/page/Mana_value) (see
     /// [`Mana::mana_value`]).
     #[must_use]
