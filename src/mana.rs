@@ -197,7 +197,7 @@ impl Mana {
                 let document = with_circle(document, HEX_C);
                 with_symbol(document, z_symbol(), 0.8125)
             }
-            Self::Split(SplitMana::Colorless { color }) => {
+            Self::Split(SplitMana::Colorless(color)) => {
                 document = with_split_circle(document, HEX_C, color.hex());
                 with_symbols(document, colorless_symbol(), color_symbol(*color), 0.875)
             }
@@ -280,7 +280,7 @@ impl Mana {
                     format!("Hybrid mana: {} or {}", a.name(), b.name())
                 }
             }
-            Self::Split(SplitMana::Colorless { color }) => {
+            Self::Split(SplitMana::Colorless(color)) => {
                 format!("Hybrid mana: colorless or {}", color.name())
             }
             Self::Colorless => "Colorless mana".to_string(),
