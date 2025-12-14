@@ -67,7 +67,7 @@ impl FromStr for Manas {
 impl Manas {
     /// Create a new `Manas` from a `Vec` of [`Mana`].    
     #[must_use]
-    pub fn from_vec(v: Vec<Mana>) -> Self {
+    pub const fn from_vec(v: Vec<Mana>) -> Self {
         Self { manas: v }
     }
 

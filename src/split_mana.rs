@@ -93,15 +93,15 @@ impl SplitMana {
         alt((ph, no, ge, co)).parse(input)
     }
 
-    fn normal(a: Color, b: Color) -> Self {
+    const fn normal(a: Color, b: Color) -> Self {
         Self::Duo { a, b, phyrexian: false }
     }
 
-    fn phyrexian(a: Color, b: Color) -> Self {
+    const fn phyrexian(a: Color, b: Color) -> Self {
         Self::Duo { a, b, phyrexian: true }
     }
 
-    fn generic(value: usize, color: Color) -> Self {
+    const fn generic(value: usize, color: Color) -> Self {
         Self::Mono { value, color }
     }
 }
