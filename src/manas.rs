@@ -55,12 +55,7 @@ impl FromStr for Manas {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let p = terminated(|x| Self::parse(Case::Either, x), eof).parse(s).finish();
-
-        match p {
-            Ok((_, mana)) => Ok(mana),
-            Err(_) => Err(()),
-        }
+        Self::from_str_with(Case::default(), s).ok_or(())
     }
 }
 
@@ -75,6 +70,13 @@ impl Manas {
     #[must_use]
     pub fn to_vec(self) -> Vec<Mana> {
         self.manas
+    }
+
+    /// Parse a `Manas` from a [`str`], assuming letter case of [`Case`].
+    ///
+    /// To parse with the default configuration, use [`Manas::from_str`].
+    pub fn from_str_with(case: Case, s: &str) -> Option<Self> {
+        terminated(|x| Self::parse(case, x), eof).parse(s).finish().ok().map(|x| x.1)
     }
 
     /// The total [mana value](https://mtg.wiki/page/Mana_value) (see

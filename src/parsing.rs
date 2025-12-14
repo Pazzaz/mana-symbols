@@ -4,13 +4,16 @@ use nom::{AsChar, Input, Parser, character::complete::char, error::ParseError};
 ///
 /// Used by parsing functions such as [`Manas::parse`](crate::Manas::parse)
 /// and [`Mana::parse`](crate::Mana::parse).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+///
+/// The default value is [`Either`](Case::Either).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Case {
     /// Lower case (e.g. `wubrg`)
     Lower,
     /// Upper case (e.g. `WUBRG`)
     Upper,
     /// Any case is valid (e.g. `wUrBG`)
+    #[default]
     Either,
 }
 

@@ -4,7 +4,6 @@
 /// and [`Manas::as_svg`][crate::Manas::as_svg].
 ///
 /// For default options, use [`SVGConfig::default`].
-
 #[derive(Debug, Clone)]
 pub struct SVGConfig {
     /// Whether to draw a circular shadow.
