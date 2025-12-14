@@ -1,9 +1,8 @@
 use std::fmt::{Display, Write};
 
-use nom::{
-    IResult, Parser, branch::alt, bytes::complete::take_while, character::complete::char,
-    combinator::value,
-};
+use nom::{IResult, Parser, branch::alt, bytes::complete::take_while, combinator::value};
+
+use crate::{Case, parsing::parse_char};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMana {
@@ -25,10 +24,10 @@ impl Display for GenericMana {
 }
 
 impl GenericMana {
-    pub fn parse(input: &str) -> IResult<&str, Self> {
-        let x = value(Self::X, char('X'));
-        let y = value(Self::Y, char('Y'));
-        let z = value(Self::Z, char('Z'));
+    pub fn parse(case: Case, input: &str) -> IResult<&str, Self> {
+        let x = value(Self::X, parse_char(case, 'x'));
+        let y = value(Self::Y, parse_char(case, 'y'));
+        let z = value(Self::Z, parse_char(case, 'z'));
         let number =
             take_while(|c: char| c.is_numeric()).map_res(|s: &str| s.parse().map(Self::Number));
         alt((x, y, z, number)).parse(input)

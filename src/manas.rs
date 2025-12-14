@@ -8,6 +8,7 @@ use svg::{Document, node::element::SVG};
 
 use crate::{
     Color, GenericMana, Mana, SVG_WIDTH, SVGConfig, SingleMana, SplitMana, color_set::ColorSet,
+    parsing::Case,
 };
 
 /// Collection of mana symbols
@@ -170,7 +171,7 @@ impl Manas {
     /// Parse `Manas` using [`nom`]. If you just want to parse normally, use
     /// [`Manas::from_str`].
     pub fn parse(input: &str) -> IResult<&str, Self> {
-        let (rest, res) = many0(Mana::parse).parse(input)?;
+        let (rest, res) = many0(|x| Mana::parse(Case::Either, x)).parse(input)?;
         Ok((rest, Self { manas: res }))
     }
 

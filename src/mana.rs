@@ -20,6 +20,7 @@ use svg::{
 use crate::{
     Color, GenericMana, SVG_WIDTH, SVGConfig, SingleMana, SplitMana,
     color::HEX_C,
+    parsing::{Case, parse_char},
     symbols::{
         color_symbol, colorless_symbol, number_symbol, phyrexian_symbol, snow_symbol, x_symbol,
         y_symbol, z_symbol,
@@ -54,7 +55,7 @@ impl FromStr for Mana {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let p = terminated(Self::parse, eof).parse(s).finish();
+        let p = terminated(|x| Self::parse(Case::Either, x), eof).parse(s).finish();
 
         match p {
             Ok((_, mana)) => Ok(mana),
@@ -131,12 +132,12 @@ impl Mana {
         }
     }
 
-    fn parse_inner(input: &str) -> IResult<&str, Self> {
-        let single = SingleMana::parse.map(Self::Single);
-        let generic = GenericMana::parse.map(Self::Generic);
-        let split = SplitMana::parse.map(Self::Split);
-        let colorless = value(Self::Colorless, char('C'));
-        let snow = value(Self::Snow, char('S'));
+    fn parse_inner(case: Case, input: &str) -> IResult<&str, Self> {
+        let single = (|x| SingleMana::parse(case, x)).map(Self::Single);
+        let generic = (|x| GenericMana::parse(case, x)).map(Self::Generic);
+        let split = (|x| SplitMana::parse(case, x)).map(Self::Split);
+        let colorless = value(Self::Colorless, parse_char(case, 'c'));
+        let snow = value(Self::Snow, parse_char(case, 's'));
 
         // We put the "longer" types first, to avoid matching prefixes
         alt((split, generic, single, colorless, snow)).parse(input)
@@ -144,9 +145,10 @@ impl Mana {
 
     /// Parse `Mana` using [`nom`]. If you just want to parse normally, use
     /// [`Mana::from_str`].
-    pub fn parse(input: &str) -> IResult<&str, Self> {
-        let brackets = delimited(char('{'), Self::parse_inner, char('}'));
-        alt((brackets, Self::parse_inner)).parse(input)
+    pub fn parse(case: Case, input: &str) -> IResult<&str, Self> {
+        let parser_self = |x| Self::parse_inner(case, x);
+        let brackets = delimited(char('{'), parser_self, char('}'));
+        alt((brackets, parser_self)).parse(input)
     }
 
     /// Display the mana symbol as an [SVG](https://en.wikipedia.org/wiki/SVG).

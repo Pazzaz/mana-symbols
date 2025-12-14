@@ -1,8 +1,11 @@
 use std::fmt::Display;
 
-use nom::{IResult, Parser, branch::alt, bytes::complete::tag, sequence::terminated};
+use nom::{IResult, Parser, branch::alt, character::complete::char, sequence::terminated};
 
-use crate::Color;
+use crate::{
+    Color,
+    parsing::{Case, parse_char},
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SingleMana {
@@ -26,9 +29,11 @@ impl SingleMana {
         }
     }
 
-    pub fn parse(input: &str) -> IResult<&str, Self> {
-        let phyrexian = terminated(Color::parse, tag("/P")).map(Self::Phyrexian);
-        let normal = Color::parse.map(Self::Normal);
+    pub fn parse(case: Case, input: &str) -> IResult<&str, Self> {
+        let color_parser = |x| Color::parse(case, x);
+        let phyrexian_tag = (char('/'), parse_char(case, 'p'));
+        let phyrexian = terminated(color_parser, phyrexian_tag).map(Self::Phyrexian);
+        let normal = color_parser.map(Self::Normal);
         alt((phyrexian, normal)).parse(input)
     }
 }

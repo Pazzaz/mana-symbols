@@ -1,6 +1,8 @@
 use std::fmt::{Display, Write};
 
-use nom::{IResult, Parser, branch::alt, character::complete::char, combinator::value};
+use nom::{IResult, Parser, branch::alt, combinator::value};
+
+use crate::{Case, parsing::parse_char};
 
 /// One of the five [colors](https://mtg.wiki/page/Color) of the color pie
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -56,8 +58,8 @@ impl Color {
         Self::from_usize((self as usize).wrapping_add(i))
     }
 
-    pub(crate) fn parse(input: &str) -> IResult<&str, Self> {
-        let parsers = ALL_COLORS.map(|c| value(c, char(c.char())));
+    pub(crate) fn parse(case: Case, input: &str) -> IResult<&str, Self> {
+        let parsers = ALL_COLORS.map(|c| value(c, parse_char(case, c.char())));
         alt(parsers).parse(input)
     }
 
