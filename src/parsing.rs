@@ -1,6 +1,9 @@
 use nom::{AsChar, Input, Parser, character::complete::char, error::ParseError};
 
-/// Configuration value for the case of string representations.
+/// Configuration value for the case of string representations
+///
+/// Used by parsing functions such as [`Manas::parse`](crate::Manas::parse)
+/// and [`Mana::parse`](crate::Mana::parse).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Case {
     /// Lower case (e.g. `wubrg`)

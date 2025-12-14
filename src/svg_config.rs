@@ -1,4 +1,4 @@
-/// Configuration for SVG outputs.
+/// Configuration for SVG outputs
 ///
 /// Used by [`Mana::as_svg`][crate::Mana::as_svg]
 /// and [`Manas::as_svg`][crate::Manas::as_svg].

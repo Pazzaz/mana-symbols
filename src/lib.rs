@@ -1,5 +1,5 @@
 //! # Mana Symbols
-//! This crate models [Mana costs][mw:mc] from [Magic the Gathering][wp:mtg]
+//! This crate models [mana costs][mw:mc] from [Magic the Gathering][wp:mtg]
 //! cards. It can parse text representations of mana (e.g. `{5}{U}{U/B}`), sort
 //! mana costs and calculate [mana values][mw:mv].
 //!
