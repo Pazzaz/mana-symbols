@@ -5,6 +5,7 @@ use nom::{
     branch::alt,
     bytes::complete::take_while,
     character::complete::char,
+    combinator::verify,
     sequence::{preceded, separated_pair, terminated},
 };
 
@@ -78,12 +79,15 @@ impl SplitMana {
         // Every other hybrid mana has two colors seperated by '/'
         let color_split = |x| separated_pair(color_parser, char('/'), color_parser).parse(x);
 
+        // The two colors are not allowed to be equal
+        let color_split_ne = |x| verify(color_split, |(a, b)| a != b).parse(x);
+
         // If it has "/P" after that it's phyrexian mana
-        let ph = terminated(color_split, (char('/'), parse_char(case, 'p')))
+        let ph = terminated(color_split_ne, (char('/'), parse_char(case, 'p')))
             .map(|(a, b)| Self::phyrexian(a, b));
 
         // Else it's normal hybrid mana
-        let no = color_split.map(|(a, b)| Self::normal(a, b));
+        let no = color_split_ne.map(|(a, b)| Self::normal(a, b));
 
         // Then we check if any of them matches
         alt((ph, no, ge, co)).parse(input)

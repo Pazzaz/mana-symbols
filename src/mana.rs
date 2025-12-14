@@ -396,6 +396,17 @@ mod tests {
     }
 
     #[test]
+    fn parse_hybrid_uu() {
+        // Can't have hybrid mana of equal color
+        assert!(Mana::from_str("{U/U}").is_err());
+    }
+
+    #[test]
+    fn parse_hybrid_ub() {
+        assert!(Mana::from_str("{U/B}").is_ok());
+    }
+
+    #[test]
     fn parse_u() {
         assert!(Mana::from_str("U").is_ok());
     }
