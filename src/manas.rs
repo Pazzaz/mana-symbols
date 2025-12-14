@@ -55,7 +55,7 @@ impl FromStr for Manas {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let p = terminated(Self::parse, eof).parse(s).finish();
+        let p = terminated(|x| Self::parse(Case::Either, x), eof).parse(s).finish();
 
         match p {
             Ok((_, mana)) => Ok(mana),
@@ -170,8 +170,8 @@ impl Manas {
 
     /// Parse `Manas` using [`nom`]. If you just want to parse normally, use
     /// [`Manas::from_str`].
-    pub fn parse(input: &str) -> IResult<&str, Self> {
-        let (rest, res) = many0(|x| Mana::parse(Case::Either, x)).parse(input)?;
+    pub fn parse(case: Case, input: &str) -> IResult<&str, Self> {
+        let (rest, res) = many0(|x| Mana::parse(case, x)).parse(input)?;
         Ok((rest, Self { manas: res }))
     }
 
@@ -313,7 +313,7 @@ mod tests {
     #[test]
     fn nom_parse_long_1() {
         let unsorted_long = "{R/P}{X}{C/U}{2/B}{W}{W/U}{B}{B/R/P}{2/R}{G}{C}{G/W/P}{S}{4}{Y}{R/W}";
-        if let Ok((res, manas)) = Manas::parse(unsorted_long) {
+        if let Ok((res, manas)) = Manas::parse(Case::Upper, unsorted_long) {
             assert_eq!(res, "");
             let simple_parser = Manas::from_str(unsorted_long).unwrap();
             assert_eq!(manas, simple_parser);
@@ -325,7 +325,7 @@ mod tests {
     #[test]
     fn nom_parse_long_2() {
         let unsorted_long = "R/PXC/U2/BWW/UBB/R/P2/RGCG/W/PS4YR/W";
-        if let Ok((res, _manas)) = Manas::parse(unsorted_long) {
+        if let Ok((res, _manas)) = Manas::parse(Case::Upper, unsorted_long) {
             assert_eq!(res, "");
         } else {
             panic!();
