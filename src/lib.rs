@@ -49,3 +49,5 @@ pub use svg_config::SVGConfig;
 
 /// Each SVG is defined using coordinates in [0, 32.0]^2
 const SVG_WIDTH: f64 = 32.0;
+
+pub mod random;

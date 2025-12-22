@@ -18,6 +18,8 @@ The types of mana supported by this library are:
 ## Sorting
 When sorting mana symbols in mana costs, this library uses an algorithm proposed by [`/u/Mean-Government1436`][reddit:user] in [a post on /r/custommagic][reddit:post]. The developers of Magic the Gathering, [Wizards of the Coast][wp:wotc], have not given any official algorithm for sorting of mana symbols.
 
+## Features
+This crate has optional support to generate random mana symbols, using the [cargo feature][cargo:feature] `rand`.
 
 <small>
 
@@ -41,3 +43,5 @@ Graphical images used in this library, including mana symbols, is copyright Wiza
 
 [reddit:user]: https://www.reddit.com/user/Mean-Government1436
 [reddit:post]: https://www.reddit.com/r/custommagic/comments/1nhtr3w/guide_for_formatting_mana_costs/
+
+[cargo:feature]: https://doc.rust-lang.org/nightly/cargo/reference/features.html

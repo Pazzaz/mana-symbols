@@ -30,7 +30,7 @@ impl Display for Color {
 
 impl Color {
     #[must_use]
-    const fn from_usize(n: usize) -> Self {
+    pub(crate) const fn from_usize(n: usize) -> Self {
         match n % 5 {
             0 => Self::White,
             1 => Self::Blue,
