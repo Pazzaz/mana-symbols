@@ -398,6 +398,15 @@ mod tests {
     }
 
     #[test]
+    fn parse_hybrid_snow() {
+        assert!(Mana::from_str("{U/S}").is_err());
+        assert!(Mana::from_str("{S/U}").is_err());
+        assert!(Mana::from_str("{S/S}").is_err());
+        assert!(Mana::from_str("{S/S/P}").is_err());
+        assert!(Mana::from_str("{U/B/S}").is_err());
+    }
+
+    #[test]
     fn parse_hybrid_uu() {
         // Can't have hybrid mana of equal color
         assert!(Mana::from_str("{U/U}").is_err());
