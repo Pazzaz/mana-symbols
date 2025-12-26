@@ -214,7 +214,7 @@ impl Mana {
             Self::Split(SplitMana::Duo { a, b, phyrexian }) => {
                 document = with_split_circle(document, a.hex(), b.hex());
                 if *phyrexian {
-                    with_symbols(document, phyrexian_symbol(), phyrexian_symbol(), 0.875)
+                    with_symbols(document, phyrexian_symbol(), phyrexian_symbol(), 1.0)
                 } else {
                     with_symbols(document, color_symbol(*a), color_symbol(*b), 0.875)
                 }
